@@ -16,9 +16,13 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
   },
 
-  client: {},
+  client: {
+    NEXT_PUBLIC_APP_NAME: z.string().default("My App"),
+  },
 
   runtimeEnv: {
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
 
