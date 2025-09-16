@@ -1,14 +1,39 @@
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { env } from "@/env";
 import { emailService } from "@/lib/email";
+import { createDefaultOrganization } from "@/lib/organization-utils";
+
+const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-08-27.basil",
+});
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Auto-create default organization for new users
+          try {
+            await createDefaultOrganization({
+              userId: user.id,
+              userName: user.name || "User",
+              userEmail: user.email,
+            });
+          } catch (error) {
+            console.error("Failed to create default organization:", error);
+          }
+        },
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -68,6 +93,117 @@ export const auth = betterAuth({
             firstName: user.name || "User",
           });
         },
+      },
+    }),
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        // Get plans dynamically from database
+        plans: async () => {
+          try {
+            const dbPlans = await db.query.plan.findMany({
+              where: (plan, { eq, and }) =>
+                and(eq(plan.isActive, true), eq(plan.type, "subscription")),
+              orderBy: (plan, { asc }) => asc(plan.sortOrder),
+            });
+
+            return dbPlans.map((plan) => ({
+              name: plan.name,
+              priceId: plan.stripePriceId,
+              annualDiscountPriceId: plan.stripeAnnualPriceId || undefined,
+              limits: plan.limits ? JSON.parse(plan.limits) : {},
+              freeTrial: plan.trialPeriodDays
+                ? {
+                    days: plan.trialPeriodDays,
+                  }
+                : undefined,
+            }));
+          } catch (error) {
+            console.error("Failed to load plans from database:", error);
+            // Fallback to hardcoded plans if database fails
+            return [
+              {
+                name: "starter",
+                priceId: "price_starter_monthly",
+                limits: {
+                  projects: 5,
+                  storage: 10,
+                  members: 3,
+                  apiCalls: 10000,
+                },
+                freeTrial: { days: 14 },
+              },
+            ];
+          }
+        },
+      },
+      // Associate subscriptions with organizations instead of users
+      authorizeReference: async ({
+        user,
+        referenceId,
+        action,
+      }: {
+        user: any;
+        referenceId: any;
+        action: any;
+      }) => {
+        // Check if user has permission to manage subscriptions for this organization
+        const member = await db.query.member.findFirst({
+          where: (member, { eq, and }) =>
+            and(
+              eq(member.userId, user.id),
+              eq(member.organizationId, referenceId),
+            ),
+        });
+
+        return member?.role === "owner" || member?.role === "admin";
+      },
+      onCustomerCreate: async ({
+        stripeCustomer,
+        user,
+      }: {
+        stripeCustomer: any;
+        user: any;
+      }) => {
+        console.log(
+          `✅ Stripe customer ${stripeCustomer.id} created for user ${user.id}`,
+        );
+      },
+      onSubscriptionCreate: async ({
+        subscription,
+        user,
+      }: {
+        subscription: any;
+        user: any;
+      }) => {
+        console.log(
+          `✅ Subscription ${subscription.id} created for user ${user.id}`,
+        );
+      },
+      onSubscriptionUpdate: async ({
+        subscription,
+        user,
+      }: {
+        subscription: any;
+        user: any;
+      }) => {
+        console.log(
+          `🔄 Subscription ${subscription.id} updated for user ${user.id}`,
+        );
+      },
+      onSubscriptionCancel: async ({
+        subscription,
+        user,
+      }: {
+        subscription: any;
+        user: any;
+      }) => {
+        console.log(
+          `❌ Subscription ${subscription.id} canceled for user ${user.id}`,
+        );
       },
     }),
   ],

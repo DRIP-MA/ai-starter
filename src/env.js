@@ -16,14 +16,21 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string(),
 
     RESEND_API_KEY: z.string(),
+
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_WEBHOOK_SECRET: z.string(),
+    STRIPE_PUBLISHABLE_KEY: z.string(),
   },
 
   client: {
     NEXT_PUBLIC_APP_NAME: z.string().default("My App"),
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
   },
 
   runtimeEnv: {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
@@ -35,6 +42,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
