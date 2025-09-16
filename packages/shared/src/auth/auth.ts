@@ -142,6 +142,7 @@ export const auth = betterAuth({
           }
         },
       },
+
       // Associate subscriptions with organizations instead of users
       authorizeReference: async ({
         user,

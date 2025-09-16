@@ -47,7 +47,7 @@ export function OrganizationsTable() {
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading } = trpc.admin.getOrganizations.useQuery({
+  const { data, isLoading } = trpc.organizations.getOrganizations.useQuery({
     page,
     limit,
     search: debouncedSearch || undefined,
@@ -56,10 +56,10 @@ export function OrganizationsTable() {
   const utils = trpc.useUtils();
 
   const updateCreditsMutation =
-    trpc.admin.updateOrganizationCredits.useMutation({
+    trpc.organizations.updateOrganizationCredits.useMutation({
       onSuccess: () => {
         // Refetch the organizations data
-        utils.admin.getOrganizations.invalidate();
+        utils.organizations.getOrganizations.invalidate();
         setEditingCredits(null);
       },
     });
@@ -71,10 +71,10 @@ export function OrganizationsTable() {
 
   const handleViewUsers = (
     organizationId: string,
-    organizationName: string
+    organizationName: string,
   ) => {
     router.push(
-      `/users?organizationId=${organizationId}&organizationName=${encodeURIComponent(organizationName)}`
+      `/users?organizationId=${organizationId}&organizationName=${encodeURIComponent(organizationName)}`,
     );
   };
 
@@ -100,18 +100,18 @@ export function OrganizationsTable() {
   };
 
   const organizations = data?.organizations || [];
-  const pagination = data?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
-    pages: 0,
+  const pagination = {
+    page: page,
+    limit: limit,
+    total: data?.total || 0,
+    pages: data?.totalPages || 1,
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
           <Input
             placeholder="Search organizations..."
             value={search}
@@ -161,7 +161,7 @@ export function OrganizationsTable() {
               <TableRow>
                 <TableCell
                   colSpan={6}
-                  className="text-center text-muted-foreground py-8"
+                  className="text-muted-foreground py-8 text-center"
                 >
                   {debouncedSearch
                     ? "No organizations found matching your search."
@@ -176,8 +176,8 @@ export function OrganizationsTable() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{org.memberCount}</span>
+                      <Users className="text-muted-foreground h-4 w-4" />
+                      <span>{/* TODO: Count members */}0</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -189,7 +189,7 @@ export function OrganizationsTable() {
                           onChange={(e) =>
                             setEditCreditsValue(Number(e.target.value))
                           }
-                          className="w-20 h-8"
+                          className="h-8 w-20"
                           min="0"
                         />
                         <Button
@@ -212,14 +212,14 @@ export function OrganizationsTable() {
                       </div>
                     ) : (
                       <div className="flex items-center space-x-2">
-                        <span className="font-mono">{org.credits || 0}</span>
+                        <span className="font-mono">{/* TODO: Implement credits */}0</span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() =>
-                            handleEditCredits(org.id, org.credits || 0)
+                            handleEditCredits(org.id, 0)
                           }
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
                         >
                           <Edit className="h-3 w-3" />
                         </Button>
@@ -228,7 +228,7 @@ export function OrganizationsTable() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {org.product?.key || "Free"}
+                      {/* TODO: Get organization plan */}"Free"
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -244,7 +244,7 @@ export function OrganizationsTable() {
                         onClick={() => handleViewUsers(org.id, org.name)}
                         className="h-8 px-2"
                       >
-                        <Users className="h-4 w-4 mr-1" />
+                        <Users className="mr-1 h-4 w-4" />
                         View Users
                       </Button>
                       <Button
@@ -253,7 +253,7 @@ export function OrganizationsTable() {
                         onClick={() => handleViewListings(org.id, org.name)}
                         className="h-8 px-2"
                       >
-                        <List className="h-4 w-4 mr-1" />
+                        <List className="mr-1 h-4 w-4" />
                         Show Listings
                       </Button>
                     </div>
@@ -266,7 +266,7 @@ export function OrganizationsTable() {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, pagination.total)} of {pagination.total}{" "}
           organizations

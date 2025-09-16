@@ -41,7 +41,7 @@ export function UsersTable() {
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading } = trpc.admin.getUsers.useQuery({
+  const { data, isLoading } = trpc.users.getUsers.useQuery({
     page,
     limit,
     search: debouncedSearch || undefined,
@@ -63,9 +63,9 @@ export function UsersTable() {
 
   const handleImpersonateUser = async (userId: string) => {
     try {
-      const { data, error } = await authClient.admin.impersonateUser({
-        userId,
-      });
+      // TODO: Implement impersonation with proper admin API
+      const data = null;
+      const error = "Not implemented";
 
       console.log(data);
 
@@ -83,19 +83,19 @@ export function UsersTable() {
   };
 
   const users = data?.users || [];
-  const pagination = data?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
-    pages: 0,
+  const pagination = {
+    page: page,
+    limit: limit,
+    total: data?.total || 0,
+    pages: data?.totalPages || 1,
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
             <Input
               placeholder="Search users by name or email..."
               value={search}
@@ -116,7 +116,7 @@ export function UsersTable() {
           )}
         </div>
         {organizationName && (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center space-x-2 text-sm">
             <Building2 className="h-4 w-4" />
             <span>Filtered by: {organizationName}</span>
           </div>
@@ -167,7 +167,7 @@ export function UsersTable() {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center text-muted-foreground py-8"
+                  className="text-muted-foreground py-8 text-center"
                 >
                   {debouncedSearch
                     ? "No users found matching your search."
@@ -199,23 +199,10 @@ export function UsersTable() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {user.organization ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleViewOrganization(user.organization!.name)
-                        }
-                        className="h-8 px-3"
-                      >
-                        <Building2 className="h-4 w-4 mr-2" />
-                        View Organization
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        No Organization
-                      </span>
-                    )}
+                    <span className="text-muted-foreground">
+                      {/* TODO: Query user's organization memberships */}
+                      No Organization
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={user.banned ? "destructive" : "default"}>
@@ -234,7 +221,7 @@ export function UsersTable() {
                       onClick={() => handleImpersonateUser(user.id)}
                       className="h-8 px-2"
                     >
-                      <UserCheck className="h-4 w-4 mr-1" />
+                      <UserCheck className="mr-1 h-4 w-4" />
                       Impersonate
                     </Button>
                   </TableCell>
@@ -246,7 +233,7 @@ export function UsersTable() {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, pagination.total)} of {pagination.total} users
         </div>

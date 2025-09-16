@@ -17,7 +17,7 @@ import { useDashboard } from "@/contexts/dashboard-context";
 export function AdminDashboard() {
   const { period } = useDashboard();
   const { data: analytics, isLoading: analyticsLoading } =
-    trpc.getAnalytics.useQuery({
+    trpc.analytics.getAnalytics.useQuery({
       period,
     });
 
@@ -41,7 +41,7 @@ export function AdminDashboard() {
     }
   };
 
-  const { data: previousAnalytics } = trpc.getAnalytics.useQuery({
+  const { data: previousAnalytics } = trpc.analytics.getAnalytics.useQuery({
     period: getPreviousPeriod(period),
   });
 
@@ -55,13 +55,13 @@ export function AdminDashboard() {
     return (
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="@container/card animate-pulse">
                 <CardHeader>
                   <div className="bg-muted h-4 w-24 rounded"></div>
                   <div className="bg-muted mt-2 h-8 w-16 rounded"></div>
-                  <div className="bg-muted mt-2 ml-auto h-6 w-12 rounded"></div>
+                  <div className="bg-muted ml-auto mt-2 h-6 w-12 rounded"></div>
                 </CardHeader>
                 <CardFooter>
                   <div className="bg-muted h-3 w-32 rounded"></div>
@@ -178,13 +178,13 @@ export function AdminDashboard() {
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         {/* Summary Cards */}
-        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
           <Card className="@container/card">
             <CardHeader>
               <CardDescription>
                 Users ({getPeriodLabel(period)})
               </CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
                 {summary.totalUsers.toLocaleString()}
               </CardTitle>
               <CardAction>
@@ -210,7 +210,7 @@ export function AdminDashboard() {
               <CardDescription>
                 Organizations ({getPeriodLabel(period)})
               </CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
                 {summary.totalOrganizations.toLocaleString()}
               </CardTitle>
               <CardAction>
@@ -236,7 +236,7 @@ export function AdminDashboard() {
               <CardDescription>
                 Subscribers ({getPeriodLabel(period)})
               </CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
                 {summary.totalSubscribers.toLocaleString()}
               </CardTitle>
               <CardAction>
@@ -262,7 +262,7 @@ export function AdminDashboard() {
               <CardDescription>
                 Conversion Rate ({getPeriodLabel(period)})
               </CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
                 {summary.totalUsers > 0
                   ? (
                       (summary.totalSubscribers / summary.totalUsers) *

@@ -122,33 +122,33 @@ export function SubscriptionsTable() {
   // Debounce search to avoid excessive API calls
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data, isLoading } = trpc.admin.getSubscriptions.useQuery({
+  const { data, isLoading } = trpc.subscriptions.getSubscriptions.useQuery({
     page,
     limit,
     search: debouncedSearch || undefined,
     organizationId: organizationId || undefined,
-    productId: productId || undefined,
   });
 
   // Get all products for the update subscription dropdown
-  const { data: productsData } = trpc.admin.getProducts.useQuery({
+  const { data: productsData } = trpc.subscriptions.getProducts.useQuery({
     page: 1,
     limit: 100, // Get all products
   });
 
   // Update subscription mutation
-  const updateSubscriptionMutation = trpc.admin.updateSubscription.useMutation({
-    onSuccess: () => {
-      // Refetch subscriptions data
-      window.location.reload();
-      setIsUpdateSheetOpen(false);
-      updateForm.reset();
-    },
-    onError: (error) => {
-      console.error("Failed to update subscription:", error);
-      toast.error("Failed to update subscription");
-    },
-  });
+  const updateSubscriptionMutation =
+    trpc.subscriptions.updateSubscription.useMutation({
+      onSuccess: () => {
+        // Refetch subscriptions data
+        window.location.reload();
+        setIsUpdateSheetOpen(false);
+        updateForm.reset();
+      },
+      onError: (error) => {
+        console.error("Failed to update subscription:", error);
+        toast.error("Failed to update subscription");
+      },
+    });
 
   useEffect(() => {
     setPage(1);
@@ -179,16 +179,16 @@ export function SubscriptionsTable() {
 
     updateSubscriptionMutation.mutate({
       subscriptionId: selectedSubscription.id,
-      productId: data.productId,
+      data: { productId: data.productId },
     });
   };
 
   const subscriptions = data?.subscriptions || [];
-  const pagination = data?.pagination || {
-    page: 1,
-    limit: 10,
-    total: 0,
-    pages: 0,
+  const pagination = {
+    page: page,
+    limit: limit,
+    total: data?.total || 0,
+    pages: data?.totalPages || 1,
   };
 
   const getStatusColor = (status: string) => {
@@ -210,8 +210,8 @@ export function SubscriptionsTable() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
             <Input
               placeholder="Search subscriptions by user or plan..."
               value={search}
@@ -232,13 +232,13 @@ export function SubscriptionsTable() {
           )}
         </div>
         {organizationName && (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center space-x-2 text-sm">
             <Building2 className="h-4 w-4" />
             <span>Filtered by: {organizationName}</span>
           </div>
         )}
         {productName && (
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center space-x-2 text-sm">
             <Package className="h-4 w-4" />
             <span>Filtered by product: {productName}</span>
           </div>
@@ -293,7 +293,7 @@ export function SubscriptionsTable() {
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="text-center text-muted-foreground py-8"
+                  className="text-muted-foreground py-8 text-center"
                 >
                   {debouncedSearch
                     ? "No subscriptions found matching your search."
@@ -301,8 +301,8 @@ export function SubscriptionsTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              subscriptions.map((subscription) => (
-                <TableRow key={subscription.id}>
+              subscriptions.map((subscription: any) => (
+                <TableRow key={subscription.id || Math.random()}>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
@@ -318,20 +318,20 @@ export function SubscriptionsTable() {
                         <div className="font-medium">
                           {subscription.user?.name || "Unknown User"}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {subscription.user?.email}
+                        <div className="text-muted-foreground text-sm">
+                          {subscription.user?.email || "N/A"}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <Package className="text-muted-foreground h-4 w-4" />
                       <div>
                         <div className="font-medium">
                           {subscription.planName || "Unknown Plan"}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-muted-foreground text-sm">
                           {subscription.product?.credits
                             ? `${subscription.product.credits} credits`
                             : "N/A"}{" "}
@@ -367,10 +367,10 @@ export function SubscriptionsTable() {
                         <span
                           onClick={() => {
                             navigator.clipboard.writeText(
-                              subscription.stripeSubId!
+                              subscription.stripeSubId!,
                             );
                             toast.success(
-                              "Subscription ID copied to clipboard"
+                              "Subscription ID copied to clipboard",
                             );
                           }}
                           className="text-muted-foreground max-w-[100px] truncate"
@@ -395,12 +395,12 @@ export function SubscriptionsTable() {
                           size="sm"
                           onClick={() =>
                             handleViewOrganization(
-                              subscription.organization!.name || ""
+                              subscription.organization!.name || "",
                             )
                           }
                           className="h-8 px-2"
                         >
-                          <Building2 className="h-4 w-4 mr-1" />
+                          <Building2 className="mr-1 h-4 w-4" />
                           View Organization
                         </Button>
                       )}
@@ -413,7 +413,7 @@ export function SubscriptionsTable() {
                           }
                           className="h-8 px-2"
                         >
-                          <Package className="h-4 w-4 mr-1" />
+                          <Package className="mr-1 h-4 w-4" />
                           View Product
                         </Button>
                       )}
@@ -423,7 +423,7 @@ export function SubscriptionsTable() {
                         onClick={() => handleUpdateSubscription(subscription)}
                         className="h-8 px-2"
                       >
-                        <Edit className="h-4 w-4 mr-1" />
+                        <Edit className="mr-1 h-4 w-4" />
                         Update
                       </Button>
                     </div>
@@ -436,7 +436,7 @@ export function SubscriptionsTable() {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, pagination.total)} of {pagination.total}{" "}
           subscriptions
@@ -465,7 +465,7 @@ export function SubscriptionsTable() {
 
       {/* Update Subscription Sheet */}
       <Sheet open={isUpdateSheetOpen} onOpenChange={setIsUpdateSheetOpen}>
-        <SheetContent className="sm:max-w-lg w-full p-6">
+        <SheetContent className="w-full p-6 sm:max-w-lg">
           <SheetHeader>
             <SheetTitle>Update Subscription</SheetTitle>
             <SheetDescription>
@@ -474,34 +474,34 @@ export function SubscriptionsTable() {
           </SheetHeader>
 
           {selectedSubscription && (
-            <div className="flex flex-col h-full">
+            <div className="flex h-full flex-col">
               <div className="flex-1 space-y-6 overflow-y-auto pr-2">
                 <div className="space-y-3">
-                  <Label className="text-base font-semibold mb-2">
+                  <Label className="mb-2 text-base font-semibold">
                     Current Subscription
                   </Label>
-                  <div className="p-4 border rounded-lg bg-muted/50">
+                  <div className="bg-muted/50 rounded-lg border p-4">
                     <div className="font-medium">
                       {selectedSubscription.user?.name || "Unknown User"}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {selectedSubscription.user?.email}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       Organization: {selectedSubscription.organization?.name}
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-base font-semibold mb-2">
+                  <Label className="mb-2 text-base font-semibold">
                     Current Product
                   </Label>
-                  <div className="p-4 border rounded-lg bg-muted/50">
+                  <div className="bg-muted/50 rounded-lg border p-4">
                     <div className="font-medium">
                       {selectedSubscription.planName || "Unknown Plan"}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {selectedSubscription.product?.credits} credits •{" "}
                       {selectedSubscription.product?.type}
                     </div>
@@ -512,7 +512,7 @@ export function SubscriptionsTable() {
                   <form
                     id="update-subscription-form"
                     onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
-                    className="space-y-6 w-full"
+                    className="w-full space-y-6"
                   >
                     <FormField
                       control={updateForm.control}
@@ -532,18 +532,21 @@ export function SubscriptionsTable() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {productsData?.products?.map((product) => (
-                                <SelectItem key={product.id} value={product.id}>
+                              {productsData?.products?.map((product: any) => (
+                                <SelectItem
+                                  key={product.id || Math.random()}
+                                  value={product.id || ""}
+                                >
                                   <div>
                                     <span className="font-medium">
-                                      {product.name}
+                                      {product.name || "Unknown Product"}
                                     </span>{" "}
-                                    <span className="text-sm text-muted-foreground">
-                                      ({product.credits} credits)
+                                    <span className="text-muted-foreground text-sm">
+                                      ({product.credits || 0} credits)
                                     </span>
                                   </div>
                                 </SelectItem>
-                              ))}
+                              )) || []}
                             </SelectContent>
                           </Select>
                           <FormDescription>

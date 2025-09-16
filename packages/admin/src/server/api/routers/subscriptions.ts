@@ -69,4 +69,6 @@ export const subscriptionsRouter = createTRPCRouter({
         totalPages: 1,
       };
     }),
+
+  // getListings removed - not part of our current project
 });

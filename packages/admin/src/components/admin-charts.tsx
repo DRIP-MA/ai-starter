@@ -35,7 +35,7 @@ const subscribersChartConfig = {
 export function AdminCharts() {
   const { period } = useDashboard();
 
-  const { data: analytics, isLoading } = trpc.getAnalytics.useQuery({
+  const { data: analytics, isLoading } = trpc.analytics.getAnalytics.useQuery({
     period,
   });
 
@@ -97,7 +97,7 @@ export function AdminCharts() {
     });
 
     // Add users data
-    usersOverTime.forEach((item) => {
+    usersOverTime?.forEach((item: any) => {
       const existing = dataMap.get(item.date);
       if (existing) {
         existing.users = item.count;
@@ -127,7 +127,7 @@ export function AdminCharts() {
     });
 
     // Add subscribers data
-    subscribersOverTime.forEach((item) => {
+    subscribersOverTime?.forEach((item: any) => {
       const existing = dataMap.get(item.date);
       if (existing) {
         existing.subscribers = item.count;
@@ -157,7 +157,7 @@ export function AdminCharts() {
     });
 
     // Add cumulative users data from backend
-    cumulativeUsersOverTime.forEach((item) => {
+    cumulativeUsersOverTime?.forEach((item: any) => {
       const existing = dataMap.get(item.date);
       if (existing) {
         existing.users = item.cumulative;
@@ -188,7 +188,7 @@ export function AdminCharts() {
     });
 
     // Add cumulative subscribers data from backend
-    cumulativeSubscribersOverTime.forEach((item) => {
+    cumulativeSubscribersOverTime?.forEach((item: any) => {
       const existing = dataMap.get(item.date);
       if (existing) {
         existing.subscribers = item.cumulative;
@@ -249,7 +249,7 @@ export function AdminCharts() {
           <CardHeader>
             <CardTitle>New users</CardTitle>
             <CardDescription>
-              <span className="hidden @[540px]/card:block">
+              <span className="@[540px]/card:block hidden">
                 New user registrations over time
               </span>
               <span className="@[540px]/card:hidden">User growth</span>
@@ -301,7 +301,7 @@ export function AdminCharts() {
           <CardHeader>
             <CardTitle>Subscriptions</CardTitle>
             <CardDescription>
-              <span className="hidden @[540px]/card:block">
+              <span className="@[540px]/card:block hidden">
                 New subscriptions over time
               </span>
               <span className="@[540px]/card:hidden">Subscription growth</span>
@@ -360,7 +360,7 @@ export function AdminCharts() {
           <CardHeader>
             <CardTitle>Total users (accumulative)</CardTitle>
             <CardDescription>
-              <span className="hidden @[540px]/card:block">
+              <span className="@[540px]/card:block hidden">
                 Cumulative user growth over time
               </span>
               <span className="@[540px]/card:hidden">Total users</span>
@@ -424,7 +424,7 @@ export function AdminCharts() {
           <CardHeader>
             <CardTitle>Total subscribers (accumulative)</CardTitle>
             <CardDescription>
-              <span className="hidden @[540px]/card:block">
+              <span className="@[540px]/card:block hidden">
                 Cumulative subscription growth over time
               </span>
               <span className="@[540px]/card:hidden">Total subscribers</span>
