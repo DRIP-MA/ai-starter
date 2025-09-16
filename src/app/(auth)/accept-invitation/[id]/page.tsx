@@ -29,6 +29,7 @@ export default function AcceptInvitationPage({ params }: PageProps) {
   const [invitation, setInvitation] = useState<any>(null);
   const [isLoadingInvitation, setIsLoadingInvitation] = useState(true);
   const [invitationId, setInvitationId] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
     const getParams = async () => {
@@ -41,8 +42,18 @@ export default function AcceptInvitationPage({ params }: PageProps) {
   useEffect(() => {
     if (invitationId) {
       loadInvitation();
+      checkAuthentication();
     }
   }, [invitationId]);
+
+  const checkAuthentication = async () => {
+    try {
+      const session = await authClient.getSession();
+      setIsAuthenticated(!!session.data);
+    } catch (error) {
+      setIsAuthenticated(false);
+    }
+  };
 
   const loadInvitation = async () => {
     if (!invitationId) return;
@@ -50,22 +61,21 @@ export default function AcceptInvitationPage({ params }: PageProps) {
     try {
       setIsLoadingInvitation(true);
       setError(""); // Clear any previous errors
-      const result = await authClient.organization.getInvitation({
-        query: {
-          id: invitationId,
-        },
-      });
+
+      // Use public API endpoint to get invitation details without authentication
+      const response = await fetch(`/api/invitations/${invitationId}`);
+      const result = await response.json();
 
       console.log("Invitation result:", result); // Debug logging
 
-      if (result.data) {
+      if (response.ok && result.data) {
         setInvitation(result.data);
       } else {
-        setError("Invitation not found or has expired");
+        setError(result.error || "Invitation not found or has expired");
       }
     } catch (err: any) {
       console.error("Failed to load invitation:", err); // Debug logging
-      setError(err?.message || "Failed to load invitation details");
+      setError("Failed to load invitation details");
     } finally {
       setIsLoadingInvitation(false);
     }
@@ -186,6 +196,81 @@ export default function AcceptInvitationPage({ params }: PageProps) {
     );
   }
 
+  // Show different UI based on authentication status
+  if (isAuthenticated === false && invitation) {
+    return (
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">Organization Invitation</CardTitle>
+          <CardDescription>
+            You've been invited to join {invitation.organization?.name}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="bg-muted/50 space-y-3 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                  <Users className="text-primary h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    {invitation.organization?.name}
+                  </p>
+                  <p className="text-muted-foreground text-xs">Organization</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                  <Shield className="text-primary h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium capitalize">
+                    {invitation.role}
+                  </p>
+                  <p className="text-muted-foreground text-xs">Your role</p>
+                </div>
+              </div>
+
+              {invitation.inviter?.user && (
+                <div className="border-t pt-2">
+                  <p className="text-muted-foreground text-xs">
+                    Invited by{" "}
+                    <span className="text-foreground font-medium">
+                      {invitation.inviter.user.name ||
+                        invitation.inviter.user.email}
+                    </span>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 text-center">
+              <p className="text-muted-foreground text-sm">
+                You need to sign in to accept this invitation
+              </p>
+
+              <div className="space-y-3">
+                <Button asChild className="w-full">
+                  <Link href={`/login?invitation=${invitationId}`}>
+                    Sign In to Accept
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={`/signup?invitation=${invitationId}`}>
+                    Create Account & Accept
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Authenticated user flow
   return (
     <Card>
       <CardHeader className="text-center">
@@ -261,16 +346,6 @@ export default function AcceptInvitationPage({ params }: PageProps) {
             >
               Decline
             </Button>
-          </div>
-
-          <div className="text-muted-foreground text-center text-sm">
-            Need an account?{" "}
-            <Link
-              href="/signup"
-              className="text-primary font-medium hover:underline"
-            >
-              Sign up first
-            </Link>
           </div>
         </div>
       </CardContent>

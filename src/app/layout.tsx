@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Roboto } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "DRIP-MA ULTIMATE TEMPLATE",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="en" className={`${roboto.variable}`}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Toaster />
       </body>
     </html>
   );

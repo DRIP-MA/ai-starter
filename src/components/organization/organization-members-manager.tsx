@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Copy } from "lucide-react";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -177,6 +178,12 @@ export function OrganizationMembersManager() {
     }
   }, []);
 
+  const handleCopyInviteLink = useCallback((invitationId: string) => {
+    const inviteLink = `${window.location.origin}/accept-invitation/${invitationId}`;
+    navigator.clipboard.writeText(inviteLink);
+    toast.success("Invite link copied to clipboard!");
+  }, []);
+
   if (!activeOrganization) {
     return (
       <div>
@@ -315,16 +322,28 @@ export function OrganizationMembersManager() {
                     </div>
                     <p className="text-muted-foreground text-xs">
                       Invited{" "}
-                      {new Date(invitation.createdAt).toLocaleDateString()}
+                      {invitation.createdAt
+                        ? new Date(invitation.createdAt).toLocaleDateString()
+                        : "Unknown date"}
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleCancelInvitation(invitation.id)}
-                  >
-                    Cancel
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyInviteLink(invitation.id)}
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Link
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancelInvitation(invitation.id)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

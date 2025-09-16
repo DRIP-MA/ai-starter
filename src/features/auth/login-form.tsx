@@ -4,8 +4,9 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -31,8 +32,10 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const invitationId = searchParams.get("invitation");
 
   const form = useForm<LoginFormData>({
     defaultValues: {
@@ -40,6 +43,18 @@ export function LoginForm({
       password: "",
     },
   });
+
+  const acceptInvitation = async (invitationId: string) => {
+    try {
+      await authClient.organization.acceptInvitation({
+        invitationId: invitationId,
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to accept invitation:", error);
+      return false;
+    }
+  };
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -51,6 +66,21 @@ export function LoginForm({
       if (result.error) {
         setError(result.error.message || "");
         return;
+      }
+
+      // If there's an invitation, try to accept it
+      if (invitationId) {
+        const invitationAccepted = await acceptInvitation(invitationId);
+        if (invitationAccepted) {
+          router.refresh();
+          router.push("/dashboard");
+          return;
+        } else {
+          setError(
+            "Login successful, but failed to accept invitation. Please try again from the invitation link.",
+          );
+          return;
+        }
       }
 
       router.refresh();

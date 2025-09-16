@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,17 +34,64 @@ export function SignUpForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingInvitation, setIsLoadingInvitation] = useState(false);
+  const [invitationEmail, setInvitationEmail] = useState<string>("");
+  const invitationId = searchParams.get("invitation");
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: invitationEmail,
       password: "",
     },
   });
+
+  // Fetch invitation details if invitation ID is present
+  useEffect(() => {
+    const fetchInvitationDetails = async () => {
+      if (!invitationId) return;
+
+      setIsLoadingInvitation(true);
+      try {
+        const response = await fetch(`/api/invitations/${invitationId}`);
+        const result = await response.json();
+
+        if (response.ok && result.data) {
+          setInvitationEmail(result.data.email);
+          form.setValue("email", result.data.email);
+        }
+      } catch (error) {
+        console.error("Failed to fetch invitation details:", error);
+      } finally {
+        setIsLoadingInvitation(false);
+      }
+    };
+
+    fetchInvitationDetails();
+  }, [invitationId, form]);
+
+  // Update form when invitationEmail changes
+  useEffect(() => {
+    if (invitationEmail) {
+      form.setValue("email", invitationEmail);
+    }
+  }, [invitationEmail, form]);
+
+  const acceptInvitation = async (invitationId: string) => {
+    try {
+      await authClient.organization.acceptInvitation({
+        invitationId: invitationId,
+      });
+      return true;
+    } catch (error) {
+      console.error("Failed to accept invitation:", error);
+      return false;
+    }
+  };
 
   const onSubmit = form.handleSubmit(async (data) => {
     try {
@@ -71,6 +119,21 @@ export function SignUpForm({
         return;
       }
 
+      // If there's an invitation, try to accept it
+      if (invitationId) {
+        const invitationAccepted = await acceptInvitation(invitationId);
+        if (invitationAccepted) {
+          router.refresh();
+          router.push("/dashboard");
+          return;
+        } else {
+          setError(
+            "Account created and logged in, but failed to accept invitation. Please try again from the invitation link.",
+          );
+          return;
+        }
+      }
+
       router.refresh();
       router.push("/");
     } catch (err) {
@@ -84,9 +147,13 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create an account</CardTitle>
+          <CardTitle className="text-xl">
+            {invitationEmail ? "Complete Your Invitation" : "Create an account"}
+          </CardTitle>
           <CardDescription>
-            Enter your details below to create your account
+            {invitationEmail
+              ? "Fill in your details to join the organization"
+              : "Enter your details below to create your account"}
           </CardDescription>
         </CardHeader>
 
@@ -121,9 +188,16 @@ export function SignUpForm({
                     autoCapitalize="none"
                     autoComplete="email"
                     autoCorrect="off"
-                    disabled={isLoading}
+                    disabled={
+                      isLoading || isLoadingInvitation || !!invitationEmail
+                    }
                     {...form.register("email")}
                   />
+                  {invitationEmail && (
+                    <p className="text-muted-foreground text-xs">
+                      Email pre-filled from invitation
+                    </p>
+                  )}
                   {form.formState.errors.email && (
                     <p className="text-destructive text-sm">
                       {form.formState.errors.email.message}
@@ -153,8 +227,18 @@ export function SignUpForm({
                   </Alert>
                 )}
                 <div className="flex flex-col gap-2">
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Sign Up"}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading || isLoadingInvitation}
+                  >
+                    {isLoading
+                      ? invitationEmail
+                        ? "Creating account & joining..."
+                        : "Creating account..."
+                      : invitationEmail
+                        ? "Create Account & Join"
+                        : "Sign Up"}
                   </Button>
                   <AuthSocials />
                 </div>
@@ -162,7 +246,14 @@ export function SignUpForm({
 
               <div className="text-center text-sm">
                 Already have an account?{" "}
-                <a href="/login" className="underline underline-offset-4">
+                <a
+                  href={
+                    invitationId
+                      ? `/login?invitation=${invitationId}`
+                      : "/login"
+                  }
+                  className="underline underline-offset-4"
+                >
                   Login
                 </a>
               </div>
