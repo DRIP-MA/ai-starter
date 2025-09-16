@@ -49,7 +49,7 @@ export function DashboardLayoutClient({
 
   // Normal dashboard with sidebar
   return (
-    <SidebarProvider>
+    <SidebarProvider key={activeOrganization?.id}>
       <AppSidebar />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

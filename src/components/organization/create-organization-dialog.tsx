@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2 } from "lucide-react";
 
 interface CreateOrganizationDialogProps {
   open: boolean;
@@ -49,6 +48,9 @@ export function CreateOrganizationDialog({
       setOrgName("");
       setError("");
       onOpenChange(false);
+
+      // Refresh to update organization list
+      window.location.reload();
     } catch (err: any) {
       setError(
         err?.message || "Failed to create organization. Please try again.",
@@ -60,29 +62,17 @@ export function CreateOrganizationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-sidebar-border bg-card sm:max-w-md">
-        <DialogHeader className="space-y-4 text-center">
-          <div className="bg-sidebar-primary/10 border-sidebar-border mx-auto flex h-12 w-12 items-center justify-center rounded-lg border">
-            <Building2 className="text-sidebar-primary h-6 w-6" />
-          </div>
-          <div>
-            <DialogTitle className="text-card-foreground text-xl">
-              Create New Organization
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Create a new organization to manage projects and team members.
-            </DialogDescription>
-          </div>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-xl">Create New Organization</DialogTitle>
+          <DialogDescription>
+            Create a new organization to manage projects and team members.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleCreateOrganization} className="space-y-4">
           <div className="grid gap-2">
-            <Label
-              htmlFor="dialogOrgName"
-              className="text-card-foreground font-medium"
-            >
-              Organization Name
-            </Label>
+            <Label htmlFor="dialogOrgName">Organization Name</Label>
             <Input
               id="dialogOrgName"
               type="text"
@@ -94,7 +84,6 @@ export function CreateOrganizationDialog({
               autoCapitalize="words"
               autoComplete="organization"
               autoCorrect="off"
-              className="bg-background border-sidebar-border focus:border-sidebar-primary focus:ring-sidebar-ring"
             />
             <p className="text-muted-foreground text-xs">
               This will be the name displayed to your team members
@@ -102,10 +91,7 @@ export function CreateOrganizationDialog({
           </div>
 
           {error && (
-            <Alert
-              variant="destructive"
-              className="border-destructive/20 bg-destructive/5"
-            >
+            <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -115,14 +101,14 @@ export function CreateOrganizationDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/20 flex-1"
+              className="flex-1"
               disabled={isCreating}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground flex-1"
+              className="flex-1"
               disabled={isCreating || !orgName.trim()}
             >
               {isCreating ? "Creating..." : "Create"}

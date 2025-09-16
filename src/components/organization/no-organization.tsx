@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, Users, Zap, Mail, Plus, X, Check } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NoOrganizationForm({
@@ -23,7 +23,7 @@ export function NoOrganizationForm({
   const [isCreating, setIsCreating] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"create" | "invite" | "complete">("create");
+  const [step, setStep] = useState<"create" | "invite">("create");
   const [inviteEmails, setInviteEmails] = useState<string[]>([]);
   const [currentEmail, setCurrentEmail] = useState("");
   const [createdOrgId, setCreatedOrgId] = useState<string | null>(null);
@@ -85,7 +85,8 @@ export function NoOrganizationForm({
           organizationId: createdOrgId,
         });
       }
-      setStep("complete");
+      // Reload the page to refresh the organization state
+      window.location.reload();
     } catch (err: any) {
       setError(err?.message || "Failed to send invitations. Please try again.");
     } finally {
@@ -94,69 +95,43 @@ export function NoOrganizationForm({
   };
 
   const handleSkipInvites = () => {
-    setStep("complete");
+    // Reload the page to refresh the organization state
+    window.location.reload();
   };
 
   // Step 1: Create Organization
   if (step === "create") {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card className="border-sidebar-border bg-card shadow-lg">
-          <CardHeader className="space-y-4 text-center">
-            <div className="bg-sidebar-primary/10 border-sidebar-border mx-auto flex h-16 w-16 items-center justify-center rounded-xl border">
-              <Building2 className="text-sidebar-primary h-8 w-8" />
-            </div>
-            <div>
-              <CardTitle className="text-card-foreground text-2xl">
-                Create Your Organization
-              </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2">
-                Get started by creating your organization to manage projects and
-                team members.
-              </CardDescription>
-            </div>
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">Create Your Organization</CardTitle>
+            <CardDescription>
+              Get started by creating your organization to manage projects and
+              team members.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateOrganization}>
               <div className="flex flex-col gap-6">
-                {/* Benefits */}
-                <div className="bg-sidebar/50 border-sidebar-border/50 grid gap-4 rounded-xl border p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-sidebar-primary/10 border-sidebar-border/30 flex h-10 w-10 items-center justify-center rounded-lg border">
-                      <Users className="text-sidebar-primary h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-card-foreground font-semibold">
-                        Collaborate with your team
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        Invite team members and manage permissions
-                      </p>
-                    </div>
+                <div className="bg-muted grid gap-4 rounded-lg p-4">
+                  <div>
+                    <h3 className="font-medium">Collaborate with your team</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Invite team members and manage permissions
+                    </p>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-sidebar-accent/30 border-sidebar-border/30 flex h-10 w-10 items-center justify-center rounded-lg border">
-                      <Zap className="text-sidebar-accent-foreground h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-card-foreground font-semibold">
-                        Manage projects efficiently
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        Organize your work and track progress
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="font-medium">Manage projects efficiently</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Organize your work and track progress
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label
-                      htmlFor="orgName"
-                      className="text-card-foreground font-medium"
-                    >
-                      Organization Name
-                    </Label>
+                    <Label htmlFor="orgName">Organization Name</Label>
                     <Input
                       id="orgName"
                       type="text"
@@ -168,7 +143,6 @@ export function NoOrganizationForm({
                       autoCapitalize="words"
                       autoComplete="organization"
                       autoCorrect="off"
-                      className="bg-background border-sidebar-border focus:border-sidebar-primary focus:ring-sidebar-ring"
                     />
                     <p className="text-muted-foreground text-xs">
                       This will be the name displayed to your team members
@@ -176,17 +150,14 @@ export function NoOrganizationForm({
                   </div>
 
                   {error && (
-                    <Alert
-                      variant="destructive"
-                      className="border-destructive/20 bg-destructive/5"
-                    >
+                    <Alert variant="destructive">
                       <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
 
                   <Button
                     type="submit"
-                    className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground w-full shadow-lg"
+                    className="w-full"
                     disabled={isCreating || !orgName.trim()}
                   >
                     {isCreating ? "Creating..." : "Create Organization"}
@@ -204,31 +175,18 @@ export function NoOrganizationForm({
   if (step === "invite") {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card className="border-sidebar-border bg-card shadow-lg">
-          <CardHeader className="space-y-4 text-center">
-            <div className="bg-sidebar-accent/20 border-sidebar-border mx-auto flex h-16 w-16 items-center justify-center rounded-xl border">
-              <Mail className="text-sidebar-accent-foreground h-8 w-8" />
-            </div>
-            <div>
-              <CardTitle className="text-card-foreground text-2xl">
-                Invite Team Members
-              </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2">
-                Invite your team to collaborate in "{orgName}" (optional)
-              </CardDescription>
-            </div>
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">Invite Team Members</CardTitle>
+            <CardDescription>
+              Invite your team to collaborate in "{orgName}" (optional)
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-6">
-              {/* Add Email Form */}
               <form onSubmit={handleAddEmail} className="flex flex-col gap-4">
                 <div className="grid gap-2">
-                  <Label
-                    htmlFor="email"
-                    className="text-card-foreground font-medium"
-                  >
-                    Email Address
-                  </Label>
+                  <Label htmlFor="email">Email Address</Label>
                   <div className="flex gap-2">
                     <Input
                       id="email"
@@ -240,42 +198,30 @@ export function NoOrganizationForm({
                       autoCapitalize="none"
                       autoComplete="email"
                       autoCorrect="off"
-                      className="bg-background border-sidebar-border focus:border-sidebar-primary focus:ring-sidebar-ring flex-1"
+                      className="flex-1"
                     />
                     <Button
                       type="submit"
-                      size="icon"
                       disabled={
                         !currentEmail.trim() || !currentEmail.includes("@")
                       }
-                      className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground border-sidebar-border"
                     >
-                      <Plus className="h-4 w-4" />
+                      Add
                     </Button>
                   </div>
                 </div>
               </form>
 
-              {/* Email List */}
               {inviteEmails.length > 0 && (
                 <div className="space-y-3">
-                  <Label className="text-card-foreground font-medium">
-                    Team Members to Invite ({inviteEmails.length})
-                  </Label>
-                  <div className="border-sidebar-border bg-sidebar/30 max-h-40 space-y-2 overflow-y-auto rounded-lg border p-3">
+                  <Label>Team Members to Invite ({inviteEmails.length})</Label>
+                  <div className="bg-muted/30 max-h-40 space-y-2 overflow-y-auto rounded-lg border p-3">
                     {inviteEmails.map((email) => (
                       <div
                         key={email}
-                        className="bg-background border-sidebar-border/50 flex items-center justify-between rounded-lg border p-3 shadow-sm"
+                        className="bg-background flex items-center justify-between rounded-lg border p-3"
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className="bg-sidebar-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
-                            <Mail className="text-sidebar-primary h-4 w-4" />
-                          </div>
-                          <span className="text-card-foreground text-sm font-medium">
-                            {email}
-                          </span>
-                        </div>
+                        <span className="text-sm font-medium">{email}</span>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -291,10 +237,7 @@ export function NoOrganizationForm({
               )}
 
               {error && (
-                <Alert
-                  variant="destructive"
-                  className="border-destructive/20 bg-destructive/5"
-                >
+                <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
@@ -304,7 +247,7 @@ export function NoOrganizationForm({
                   <Button
                     onClick={handleSendInvites}
                     disabled={isCreating}
-                    className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground w-full shadow-lg"
+                    className="w-full"
                   >
                     {isCreating
                       ? "Sending Invites..."
@@ -315,7 +258,7 @@ export function NoOrganizationForm({
                 <Button
                   onClick={handleSkipInvites}
                   variant="outline"
-                  className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-accent-foreground w-full"
+                  className="w-full"
                   disabled={isCreating}
                 >
                   {inviteEmails.length > 0
@@ -335,45 +278,8 @@ export function NoOrganizationForm({
     );
   }
 
-  // Step 3: Complete
-  return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="border-sidebar-border bg-card shadow-lg">
-        <CardHeader className="space-y-4 text-center">
-          <div className="bg-sidebar-accent/30 border-sidebar-border mx-auto flex h-16 w-16 items-center justify-center rounded-xl border">
-            <Check className="text-sidebar-accent-foreground h-8 w-8" />
-          </div>
-          <div>
-            <CardTitle className="text-card-foreground text-2xl">
-              Organization Created Successfully!
-            </CardTitle>
-            <CardDescription className="text-muted-foreground mt-2">
-              Welcome to "{orgName}".{" "}
-              {inviteEmails.length > 0
-                ? `Invitations sent to ${inviteEmails.length} team member${inviteEmails.length !== 1 ? "s" : ""}.`
-                : "You can start using your organization right away."}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-6">
-            <div className="text-center">
-              <p className="text-muted-foreground mb-4 text-sm">
-                Your organization is ready! You'll be redirected to your
-                dashboard shortly.
-              </p>
-              <Button
-                onClick={() => window.location.reload()}
-                className="bg-sidebar-primary hover:bg-sidebar-primary/90 text-sidebar-primary-foreground w-full shadow-lg"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  // This should not be reached since we reload the page
+  return null;
 }
 
 export function NoOrganization() {
