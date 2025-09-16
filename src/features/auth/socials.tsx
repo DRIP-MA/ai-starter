@@ -4,7 +4,7 @@ import { authClient } from "@/lib/auth-client";
 export default function AuthSocials() {
   return (
     <div className="flex flex-col gap-2">
-      <p className="w-full text-center text-sm text-muted-foreground">or</p>
+      <p className="text-muted-foreground w-full text-center text-sm">or</p>
       <Button
         type="button"
         variant={"outline"}
@@ -12,7 +12,7 @@ export default function AuthSocials() {
         onClick={() =>
           authClient.signIn.social({
             provider: "google",
-            callbackURL: "/app",
+            callbackURL: "/",
           })
         }
       >

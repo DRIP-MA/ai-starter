@@ -15,7 +15,7 @@ export function Unauthenticated({ children }: UnauthenticatedProps) {
     const checkAuth = async () => {
       const session = await authClient.getSession();
       if (session.data && !session.error) {
-        router.push("/app");
+        router.push("/");
       }
     };
     checkAuth();
