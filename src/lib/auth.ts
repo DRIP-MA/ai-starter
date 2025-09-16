@@ -43,6 +43,23 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Send welcome email when user creates account
+          try {
+            await emailService.sendWelcomeEmail({
+              to: user.email,
+              firstName: user.name || "User",
+            });
+          } catch (error) {
+            console.error("Failed to send welcome email:", error);
+          }
+        },
+      },
+    },
+  },
   plugins: [
     organization({
       allowUserToCreateOrganization: true,
@@ -60,21 +77,6 @@ export const auth = betterAuth({
           role: Array.isArray(data.role) ? data.role.join(", ") : data.role,
           inviteLink,
         });
-      },
-      organizationHooks: {
-        afterCreateOrganization: async ({
-          organization,
-          user,
-        }: {
-          organization: any;
-          user: any;
-        }) => {
-          // Send welcome email when user creates their first organization
-          await emailService.sendWelcomeEmail({
-            to: user.email,
-            firstName: user.name || "User",
-          });
-        },
       },
     }),
     stripe({

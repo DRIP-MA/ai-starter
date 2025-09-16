@@ -2,17 +2,17 @@
 
 import * as React from "react";
 import {
-  BookOpen,
-  Bot,
-  Frame,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  LayoutDashboard,
+  Users,
+  Building2,
+  Settings,
+  CreditCard,
+  User,
+  FolderOpen,
+  Plus,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { OrganizationSwitcher } from "@/components/team-switcher";
 import {
@@ -29,13 +29,27 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: SquareTerminal,
-      isActive: true,
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Organization",
+      url: "/organization/members",
+      icon: Building2,
+      items: [
+        {
+          title: "Members",
+          url: "/organization/members",
+        },
+        {
+          title: "Settings",
+          url: "/organization/settings",
+        },
+      ],
     },
     {
       title: "Projects",
       url: "/projects",
-      icon: Bot,
+      icon: FolderOpen,
       items: [
         {
           title: "All Projects",
@@ -45,31 +59,18 @@ const data = {
           title: "Create New",
           url: "/projects/new",
         },
-      ],
-    },
-    {
-      title: "Organization",
-      url: "/organization",
-      icon: BookOpen,
-      items: [
         {
-          title: "Members",
-          url: "/organization/members",
-        },
-        {
-          title: "Invitations",
-          url: "/organization/invitations",
-        },
-        {
-          title: "Settings",
-          url: "/organization/settings",
+          title: "Templates",
+          url: "/projects/templates",
         },
       ],
     },
+  ],
+  navSecondary: [
     {
       title: "Settings",
       url: "/settings",
-      icon: Settings2,
+      icon: Settings,
       items: [
         {
           title: "Profile",
@@ -83,24 +84,11 @@ const data = {
           title: "Subscription",
           url: "/settings/subscription",
         },
+        {
+          title: "Notifications",
+          url: "/settings/notifications",
+        },
       ],
-    },
-  ],
-  projects: [
-    {
-      name: "Getting Started",
-      url: "/projects/getting-started",
-      icon: Frame,
-    },
-    {
-      name: "Analytics Dashboard",
-      url: "/projects/analytics",
-      icon: PieChart,
-    },
-    {
-      name: "API Integration",
-      url: "/projects/api",
-      icon: Map,
     },
   ],
 };
@@ -113,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={data.navSecondary} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

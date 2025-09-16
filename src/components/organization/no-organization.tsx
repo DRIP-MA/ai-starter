@@ -114,55 +114,38 @@ export function NoOrganizationForm({
           <CardContent>
             <form onSubmit={handleCreateOrganization}>
               <div className="flex flex-col gap-6">
-                <div className="bg-muted grid gap-4 rounded-lg p-4">
-                  <div>
-                    <h3 className="font-medium">Collaborate with your team</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Invite team members and manage permissions
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Manage projects efficiently</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Organize your work and track progress
-                    </p>
-                  </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="orgName">Organization Name</Label>
+                  <Input
+                    id="orgName"
+                    type="text"
+                    placeholder="Enter your organization name"
+                    value={orgName}
+                    onChange={(e) => setOrgName(e.target.value)}
+                    required
+                    disabled={isCreating}
+                    autoCapitalize="words"
+                    autoComplete="organization"
+                    autoCorrect="off"
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    This will be the name displayed to your team members
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="orgName">Organization Name</Label>
-                    <Input
-                      id="orgName"
-                      type="text"
-                      placeholder="Enter your organization name"
-                      value={orgName}
-                      onChange={(e) => setOrgName(e.target.value)}
-                      required
-                      disabled={isCreating}
-                      autoCapitalize="words"
-                      autoComplete="organization"
-                      autoCorrect="off"
-                    />
-                    <p className="text-muted-foreground text-xs">
-                      This will be the name displayed to your team members
-                    </p>
-                  </div>
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
 
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isCreating || !orgName.trim()}
-                  >
-                    {isCreating ? "Creating..." : "Create Organization"}
-                  </Button>
-                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isCreating || !orgName.trim()}
+                >
+                  {isCreating ? "Creating..." : "Create Organization"}
+                </Button>
               </div>
             </form>
           </CardContent>
