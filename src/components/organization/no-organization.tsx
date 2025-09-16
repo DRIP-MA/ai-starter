@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { X } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NoOrganizationForm({
@@ -135,6 +135,8 @@ export function NoOrganizationForm({
 
                 {error && (
                   <Alert variant="destructive">
+                    <AlertCircle />
+                    <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
@@ -221,6 +223,8 @@ export function NoOrganizationForm({
 
               {error && (
                 <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertTitle>Error</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}

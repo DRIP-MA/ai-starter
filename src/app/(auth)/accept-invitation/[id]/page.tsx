@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle, XCircle, Users, Shield, AlertCircle } from "lucide-react";
 
 interface PageProps {
   params: Promise<{
@@ -47,13 +49,22 @@ export default function AcceptInvitationPage({ params }: PageProps) {
 
     try {
       setIsLoadingInvitation(true);
+      setError(""); // Clear any previous errors
       const result = await authClient.organization.getInvitation({
         query: {
           id: invitationId,
         },
       });
-      setInvitation(result.data);
+
+      console.log("Invitation result:", result); // Debug logging
+
+      if (result.data) {
+        setInvitation(result.data);
+      } else {
+        setError("Invitation not found or has expired");
+      }
     } catch (err: any) {
+      console.error("Failed to load invitation:", err); // Debug logging
       setError(err?.message || "Failed to load invitation details");
     } finally {
       setIsLoadingInvitation(false);
@@ -97,133 +108,172 @@ export default function AcceptInvitationPage({ params }: PageProps) {
 
   if (isLoadingInvitation) {
     return (
-      <div className="container flex h-screen w-screen flex-col items-center justify-center">
-        <Card className="mx-auto max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center">Loading invitation...</div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-8">
+          <div className="border-primary mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+          <p className="text-muted-foreground">Loading invitation...</p>
+        </CardContent>
+      </Card>
     );
   }
 
   if (isSuccess) {
     return (
-      <div className="container flex h-screen w-screen flex-col items-center justify-center">
-        <Card className="mx-auto max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Welcome to the Team!</CardTitle>
-            <CardDescription>
-              You have successfully joined {invitation?.organization?.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-muted-foreground text-sm">
-                You're now a member of {invitation?.organization?.name} with the
-                role of {invitation?.role}.
-              </p>
-              <Button
-                onClick={() => router.push("/dashboard")}
-                className="w-full"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!invitation || error) {
-    return (
-      <div className="container flex h-screen w-screen flex-col items-center justify-center">
-        <Card className="mx-auto max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Invalid Invitation</CardTitle>
-            <CardDescription>
-              This invitation link is invalid, expired, or has already been
-              used.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {error && (
-                <div className="rounded bg-red-50 p-3 text-sm text-red-600">
-                  {error}
-                </div>
-              )}
-              <Button asChild className="w-full">
-                <Link href="/login">Go to Login</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Card className="mx-auto max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Organization Invitation</CardTitle>
+      <Card>
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+          </div>
+          <CardTitle className="text-xl">Welcome to the Team!</CardTitle>
           <CardDescription>
-            You've been invited to join {invitation.organization?.name}
+            You have successfully joined {invitation?.organization?.name}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="rounded-lg bg-gray-50 p-4">
-              <h3 className="mb-2 font-semibold">Invitation Details</h3>
-              <p className="mb-1 text-sm text-gray-600">
-                <strong>Organization:</strong> {invitation.organization?.name}
+            <div className="bg-muted/50 rounded-lg p-4">
+              <p className="text-sm">
+                <strong>Organization:</strong> {invitation?.organization?.name}
               </p>
-              <p className="mb-1 text-sm text-gray-600">
-                <strong>Role:</strong> {invitation.role}
-              </p>
-              <p className="text-sm text-gray-600">
-                <strong>Invited by:</strong>{" "}
-                {invitation.inviter?.user?.name ||
-                  invitation.inviter?.user?.email}
+              <p className="text-sm">
+                <strong>Your Role:</strong> {invitation?.role}
               </p>
             </div>
+            <Button
+              onClick={() => router.push("/dashboard")}
+              className="w-full"
+            >
+              Go to Dashboard
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
+  if (!invitation && !isLoadingInvitation) {
+    return (
+      <Card>
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <XCircle className="h-6 w-6 text-red-600" />
+          </div>
+          <CardTitle className="text-xl">Invalid Invitation</CardTitle>
+          <CardDescription>
+            This invitation link is invalid, expired, or has already been used.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
             {error && (
-              <div className="rounded bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
-
-            <div className="flex space-x-3">
-              <Button
-                onClick={handleAcceptInvitation}
-                disabled={isLoading}
-                className="flex-1"
-              >
-                {isLoading ? "Processing..." : "Accept"}
+            <div className="space-y-2">
+              <Button asChild className="w-full">
+                <Link href="/login">Go to Login</Link>
               </Button>
-              <Button
-                onClick={handleRejectInvitation}
-                disabled={isLoading}
-                variant="outline"
-                className="flex-1"
-              >
-                Decline
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/signup">Create Account</Link>
               </Button>
-            </div>
-
-            <div className="text-center text-sm text-gray-500">
-              Need an account?{" "}
-              <Link href="/signup" className="underline">
-                Sign up first
-              </Link>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+          <Users className="h-6 w-6 text-blue-600" />
+        </div>
+        <CardTitle className="text-xl">Organization Invitation</CardTitle>
+        <CardDescription>
+          You've been invited to join {invitation.organization?.name}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="bg-muted/50 space-y-3 rounded-lg p-4">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                <Users className="text-primary h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">
+                  {invitation.organization?.name}
+                </p>
+                <p className="text-muted-foreground text-xs">Organization</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                <Shield className="text-primary h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium capitalize">
+                  {invitation.role}
+                </p>
+                <p className="text-muted-foreground text-xs">Your role</p>
+              </div>
+            </div>
+
+            {invitation.inviter?.user && (
+              <div className="border-t pt-2">
+                <p className="text-muted-foreground text-xs">
+                  Invited by{" "}
+                  <span className="text-foreground font-medium">
+                    {invitation.inviter.user.name ||
+                      invitation.inviter.user.email}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle />
+              <AlertTitle>Unable to process invitation</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="space-y-3">
+            <Button
+              onClick={handleAcceptInvitation}
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? "Processing..." : "Accept Invitation"}
+            </Button>
+            <Button
+              onClick={handleRejectInvitation}
+              disabled={isLoading}
+              variant="outline"
+              className="w-full"
+            >
+              Decline
+            </Button>
+          </div>
+
+          <div className="text-muted-foreground text-center text-sm">
+            Need an account?{" "}
+            <Link
+              href="/signup"
+              className="text-primary font-medium hover:underline"
+            >
+              Sign up first
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
- 
