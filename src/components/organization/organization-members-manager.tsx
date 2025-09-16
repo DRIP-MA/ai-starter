@@ -37,7 +37,7 @@ export function OrganizationMembersManager() {
   const [isInviting, setIsInviting] = useState(false);
 
   const loadMembers = useCallback(async () => {
-    if (!activeOrganization) return;
+    if (!activeOrganization?.id) return;
 
     setIsLoading(true);
     try {
@@ -53,10 +53,10 @@ export function OrganizationMembersManager() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeOrganization]);
+  }, [activeOrganization?.id]);
 
   const loadInvitations = useCallback(async () => {
-    if (!activeOrganization) return;
+    if (!activeOrganization?.id) return;
 
     try {
       const result = await authClient.organization.listInvitations({
@@ -69,12 +69,23 @@ export function OrganizationMembersManager() {
       console.error("Failed to load invitations:", error);
       setInvitations([]);
     }
-  }, [activeOrganization]);
+  }, [activeOrganization?.id]);
 
   useEffect(() => {
-    loadMembers();
-    loadInvitations();
-  }, [loadMembers, loadInvitations]);
+    let mounted = true;
+
+    const loadData = async () => {
+      if (!activeOrganization?.id || !mounted) return;
+
+      await Promise.all([loadMembers(), loadInvitations()]);
+    };
+
+    loadData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [activeOrganization?.id]); // Only depend on the ID, not the whole object
 
   const handleInviteMember = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,14 +96,18 @@ export function OrganizationMembersManager() {
     setSuccess("");
 
     try {
-      await authClient.organization.inviteMember({
+      const result = await authClient.organization.inviteMember({
         email: inviteEmail.trim(),
         role: inviteRole as "member" | "admin",
         organizationId: activeOrganization.id,
       });
       setInviteEmail("");
       setSuccess("Invitation sent successfully!");
-      loadInvitations();
+
+      // Add to local state instead of refetching
+      if (result.data) {
+        setInvitations((prev) => [...prev, result.data]);
+      }
     } catch (err: any) {
       setError(err?.message || "Failed to send invitation. Please try again.");
     } finally {
@@ -144,19 +159,19 @@ export function OrganizationMembersManager() {
     [activeOrganization, loadMembers],
   );
 
-  const handleCancelInvitation = async (invitationId: string) => {
+  const handleCancelInvitation = useCallback(async (invitationId: string) => {
     try {
       await authClient.organization.cancelInvitation({
         invitationId,
       });
       setSuccess("Invitation canceled successfully!");
-      loadInvitations();
+      
+      // Update local state instead of refetching
+      setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
     } catch (err: any) {
-      setError(
-        err?.message || "Failed to cancel invitation. Please try again.",
-      );
+      setError(err?.message || "Failed to cancel invitation. Please try again.");
     }
-  };
+  }, []);
 
   if (!activeOrganization) {
     return (
