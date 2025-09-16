@@ -241,3 +241,4 @@ export const subscriptionRelations = relations(subscription, ({ one }) => ({
 export const planRelations = relations(plan, ({ many }) => ({
   subscriptions: many(subscription),
 }));
+ 

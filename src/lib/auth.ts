@@ -6,7 +6,6 @@ import Stripe from "stripe";
 import { db } from "@/lib/db";
 import { env } from "@/env";
 import { emailService } from "@/lib/email";
-import { createDefaultOrganization } from "@/lib/organization-utils";
 
 const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-08-27.basil",
@@ -16,24 +15,7 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  databaseHooks: {
-    user: {
-      create: {
-        after: async (user) => {
-          // Auto-create default organization for new users
-          try {
-            await createDefaultOrganization({
-              userId: user.id,
-              userName: user.name || "User",
-              userEmail: user.email,
-            });
-          } catch (error) {
-            console.error("Failed to create default organization:", error);
-          }
-        },
-      },
-    },
-  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,

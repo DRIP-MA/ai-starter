@@ -19,11 +19,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { CreateOrganizationDialog } from "@/components/organization/create-organization-dialog";
 
 export function OrganizationSwitcher() {
   const { isMobile } = useSidebar();
   const { data: organizations } = authClient.useListOrganizations();
   const { data: activeOrganization } = authClient.useActiveOrganization();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
 
   const handleSetActive = async (organizationId: string) => {
     try {
@@ -32,17 +34,6 @@ export function OrganizationSwitcher() {
       });
     } catch (error) {
       console.error("Failed to set active organization:", error);
-    }
-  };
-
-  const handleCreateOrganization = async () => {
-    try {
-      await authClient.organization.create({
-        name: "New Organization",
-        slug: `org-${Date.now()}`,
-      });
-    } catch (error) {
-      console.error("Failed to create organization:", error);
     }
   };
 
@@ -96,7 +87,7 @@ export function OrganizationSwitcher() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="gap-2 p-2"
-              onClick={handleCreateOrganization}
+              onClick={() => setIsCreateDialogOpen(true)}
             >
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
@@ -108,6 +99,11 @@ export function OrganizationSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+
+      <CreateOrganizationDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </SidebarMenu>
   );
 }

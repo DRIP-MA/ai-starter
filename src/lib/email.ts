@@ -34,7 +34,7 @@ export interface SendEmailVerificationParams {
 }
 
 const APP_NAME = env.NEXT_PUBLIC_APP_NAME;
-const FROM_EMAIL = "noreply@yourdomain.com"; // Update this to your verified domain
+const FROM_EMAIL = "send@email.allignia.io";
 
 export const emailService = {
   async sendWelcomeEmail({ to, firstName }: SendWelcomeEmailParams) {
