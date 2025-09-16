@@ -16,6 +16,21 @@ export const auth = betterAuth({
     provider: "pg",
   }),
 
+  // Cross-subdomain authentication configuration
+  advanced: {
+    cookiePrefix: "acme-auth",
+    crossSubDomainCookies: {
+      enabled: !!env.AUTH_DOMAIN,
+      domain: env.AUTH_DOMAIN,
+    },
+    useSecureCookies: env.NODE_ENV === "production",
+  },
+
+  // Trusted origins for cross-subdomain authentication
+  trustedOrigins: env.AUTH_TRUSTED_ORIGINS
+    ? env.AUTH_TRUSTED_ORIGINS.split(",").map((origin) => origin.trim())
+    : undefined,
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,

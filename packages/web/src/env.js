@@ -12,6 +12,10 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string(),
     BETTER_AUTH_URL: z.string().url(),
 
+    // Cross-subdomain authentication settings
+    AUTH_DOMAIN: z.string().optional(), // e.g., "example.com" for cross-subdomain cookies
+    AUTH_TRUSTED_ORIGINS: z.string().optional(), // Comma-separated list of trusted origins
+
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
 
@@ -37,6 +41,10 @@ export const env = createEnv({
 
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+
+    // Cross-subdomain authentication settings
+    AUTH_DOMAIN: process.env.AUTH_DOMAIN,
+    AUTH_TRUSTED_ORIGINS: process.env.AUTH_TRUSTED_ORIGINS,
 
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

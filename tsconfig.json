@@ -21,23 +21,13 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
-    "incremental": true,
-
-    /* Path Aliases */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "incremental": true
   },
   "include": [
-    ".eslintrc.cjs",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.cjs",
-    "**/*.js",
-    ".next/types/**/*.ts"
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.cjs",
+    "packages/**/*.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/node_modules", "**/.next", "**/dist"]
 }
