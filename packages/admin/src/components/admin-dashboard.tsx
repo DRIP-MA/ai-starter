@@ -16,27 +16,34 @@ import { useDashboard } from "@/contexts/dashboard-context";
 
 export function AdminDashboard() {
   const { period } = useDashboard();
-  // Mock data for now - replace with actual TRPC calls when admin API is ready
-  const analyticsLoading = false;
-  const analytics = {
-    summary: {
-      totalUsers: 1250,
-      totalOrganizations: 45,
-      totalSubscribers: 320,
-    },
-    usersOverTime: [],
-    subscribersOverTime: [],
-    cumulativeUsersOverTime: [],
-    cumulativeSubscribersOverTime: [],
+  const { data: analytics, isLoading: analyticsLoading } =
+    trpc.getAnalytics.useQuery({
+      period,
+    });
+
+  // Get previous period data for growth calculations
+  const getPreviousPeriod = (currentPeriod: string) => {
+    switch (currentPeriod) {
+      case "today":
+        return "7d";
+      case "7d":
+        return "30d";
+      case "30d":
+        return "90d";
+      case "90d":
+        return "1y";
+      case "1y":
+        return "all";
+      case "all":
+        return "all";
+      default:
+        return "30d";
+    }
   };
 
-  const previousAnalytics = {
-    summary: {
-      totalUsers: 1100,
-      totalOrganizations: 38,
-      totalSubscribers: 280,
-    },
-  };
+  const { data: previousAnalytics } = trpc.getAnalytics.useQuery({
+    period: getPreviousPeriod(period),
+  });
 
   // Calculate growth rates
   const calculateGrowthRate = (current: number, previous: number) => {
@@ -48,16 +55,16 @@ export function AdminDashboard() {
     return (
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="@container/card animate-pulse">
                 <CardHeader>
-                  <div className="h-4 w-24 bg-muted rounded"></div>
-                  <div className="h-8 w-16 bg-muted rounded mt-2"></div>
-                  <div className="h-6 w-12 bg-muted rounded mt-2 ml-auto"></div>
+                  <div className="bg-muted h-4 w-24 rounded"></div>
+                  <div className="bg-muted mt-2 h-8 w-16 rounded"></div>
+                  <div className="bg-muted mt-2 ml-auto h-6 w-12 rounded"></div>
                 </CardHeader>
                 <CardFooter>
-                  <div className="h-3 w-32 bg-muted rounded"></div>
+                  <div className="bg-muted h-3 w-32 rounded"></div>
                 </CardFooter>
               </Card>
             ))}
@@ -67,33 +74,33 @@ export function AdminDashboard() {
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Card className="animate-pulse">
                   <CardHeader>
-                    <div className="h-6 w-32 bg-muted rounded"></div>
-                    <div className="h-4 w-48 bg-muted rounded"></div>
+                    <div className="bg-muted h-6 w-32 rounded"></div>
+                    <div className="bg-muted h-4 w-48 rounded"></div>
                   </CardHeader>
-                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                  <div className="bg-muted mx-4 mb-4 h-64 rounded"></div>
                 </Card>
                 <Card className="animate-pulse">
                   <CardHeader>
-                    <div className="h-6 w-32 bg-muted rounded"></div>
-                    <div className="h-4 w-48 bg-muted rounded"></div>
+                    <div className="bg-muted h-6 w-32 rounded"></div>
+                    <div className="bg-muted h-4 w-48 rounded"></div>
                   </CardHeader>
-                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                  <div className="bg-muted mx-4 mb-4 h-64 rounded"></div>
                 </Card>
               </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Card className="animate-pulse">
                   <CardHeader>
-                    <div className="h-6 w-32 bg-muted rounded"></div>
-                    <div className="h-4 w-48 bg-muted rounded"></div>
+                    <div className="bg-muted h-6 w-32 rounded"></div>
+                    <div className="bg-muted h-4 w-48 rounded"></div>
                   </CardHeader>
-                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                  <div className="bg-muted mx-4 mb-4 h-64 rounded"></div>
                 </Card>
                 <Card className="animate-pulse">
                   <CardHeader>
-                    <div className="h-6 w-32 bg-muted rounded"></div>
-                    <div className="h-4 w-48 bg-muted rounded"></div>
+                    <div className="bg-muted h-6 w-32 rounded"></div>
+                    <div className="bg-muted h-4 w-48 rounded"></div>
                   </CardHeader>
-                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                  <div className="bg-muted mx-4 mb-4 h-64 rounded"></div>
                 </Card>
               </div>
             </div>
@@ -117,15 +124,15 @@ export function AdminDashboard() {
 
   const userGrowth = calculateGrowthRate(
     summary.totalUsers,
-    previousSummary.totalUsers
+    previousSummary.totalUsers,
   );
   const organizationGrowth = calculateGrowthRate(
     summary.totalOrganizations,
-    previousSummary.totalOrganizations
+    previousSummary.totalOrganizations,
   );
   const subscriberGrowth = calculateGrowthRate(
     summary.totalSubscribers,
-    previousSummary.totalSubscribers
+    previousSummary.totalSubscribers,
   );
 
   // Format period labels
@@ -171,7 +178,7 @@ export function AdminDashboard() {
     <div className="flex flex-1 flex-col gap-2">
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         {/* Summary Cards */}
-        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
           <Card className="@container/card">
             <CardHeader>
               <CardDescription>
@@ -192,7 +199,7 @@ export function AdminDashboard() {
                 </Badge>
               </CardAction>
             </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
+            <CardFooter className="text-muted-foreground text-sm">
               {previousSummary.totalUsers.toLocaleString()} in{" "}
               {getPreviousPeriodLabel(period)}
             </CardFooter>
@@ -218,7 +225,7 @@ export function AdminDashboard() {
                 </Badge>
               </CardAction>
             </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
+            <CardFooter className="text-muted-foreground text-sm">
               {previousSummary.totalOrganizations.toLocaleString()} in{" "}
               {getPreviousPeriodLabel(period)}
             </CardFooter>
@@ -244,7 +251,7 @@ export function AdminDashboard() {
                 </Badge>
               </CardAction>
             </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
+            <CardFooter className="text-muted-foreground text-sm">
               {previousSummary.totalSubscribers.toLocaleString()} in{" "}
               {getPreviousPeriodLabel(period)}
             </CardFooter>
@@ -292,7 +299,7 @@ export function AdminDashboard() {
                 </Badge>
               </CardAction>
             </CardHeader>
-            <CardFooter className="text-sm text-muted-foreground">
+            <CardFooter className="text-muted-foreground text-sm">
               {previousSummary.totalUsers > 0
                 ? (
                     (previousSummary.totalSubscribers /

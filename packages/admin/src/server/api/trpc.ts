@@ -9,8 +9,10 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { TRPCError } from "@trpc/server";
 
-import { db } from "@acme/shared/server";
+import { db, auth, user } from "@acme/shared/server";
+import { eq } from "drizzle-orm";
 
 /**
  * 1. CONTEXT
@@ -25,8 +27,14 @@ import { db } from "@acme/shared/server";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  // Get session from Better Auth
+  const session = await auth.api.getSession({
+    headers: opts.headers,
+  });
+
   return {
     db,
+    session,
     ...opts,
   };
 };
@@ -88,8 +96,35 @@ export const publicProcedure = t.procedure;
  * This procedure ensures the user is authenticated and has admin privileges.
  * You can use this for admin-only endpoints.
  */
-export const adminProcedure = t.procedure.use(async ({ next }) => {
-  // TODO: Add admin authentication check here
-  // For now, we'll allow all requests
-  return next();
+export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+  const { db, session } = ctx;
+
+  // Check if user is authenticated
+  if (!session?.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to access admin features",
+    });
+  }
+
+  const [dbUser] = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id));
+
+  const admin = dbUser?.role === "admin";
+
+  if (!dbUser || !admin) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You don't have admin privileges",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      user: dbUser,
+    },
+  });
 });

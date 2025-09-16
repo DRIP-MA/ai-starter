@@ -1,4 +1,4 @@
-import { env } from "@acme/shared/server";
+import { env } from "@/env";
 import postgres from "postgres";
 
 const databaseUrl = env.DATABASE_URL;

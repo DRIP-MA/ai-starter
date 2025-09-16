@@ -1,13 +1,15 @@
+import { config } from "dotenv";
+config();
+
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth";
-import { organization } from "better-auth/plugins";
+import { organization, admin } from "better-auth/plugins";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { db } from "../db";
-import { env } from "../env";
 import { emailService } from "../lib/email";
 
-const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-08-27.basil",
 });
 
@@ -20,15 +22,15 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: "acme-auth",
     crossSubDomainCookies: {
-      enabled: !!env.AUTH_DOMAIN,
-      domain: env.AUTH_DOMAIN,
+      enabled: !!process.env.AUTH_DOMAIN,
+      domain: process.env.AUTH_DOMAIN,
     },
-    useSecureCookies: env.NODE_ENV === "production",
+    useSecureCookies: process.env.NODE_ENV === "production",
   },
 
   // Trusted origins for cross-subdomain authentication
-  trustedOrigins: env.AUTH_TRUSTED_ORIGINS
-    ? env.AUTH_TRUSTED_ORIGINS.split(",").map((origin) => origin.trim())
+  trustedOrigins: process.env.AUTH_TRUSTED_ORIGINS
+    ? process.env.AUTH_TRUSTED_ORIGINS.split(",").map((origin) => origin.trim())
     : undefined,
 
   emailAndPassword: {
@@ -54,8 +56,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     google: {
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
   databaseHooks: {
@@ -76,6 +78,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin(),
     organization({
       allowUserToCreateOrganization: true,
       organizationLimit: 10,
@@ -83,7 +86,7 @@ export const auth = betterAuth({
       creatorRole: "owner",
       invitationExpiresIn: 60 * 60 * 24 * 7, // 7 days
       async sendInvitationEmail(data) {
-        const inviteLink = `${env.BETTER_AUTH_URL}/accept-invitation/${data.id}`;
+        const inviteLink = `${process.env.BETTER_AUTH_URL}/accept-invitation/${data.id}`;
         await emailService.sendOrganizationInvitation({
           to: data.email,
           invitedByName: data.inviter.user.name || "Team Member",
@@ -96,7 +99,7 @@ export const auth = betterAuth({
     }),
     stripe({
       stripeClient,
-      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
       createCustomerOnSignUp: true,
       subscription: {
         enabled: true,

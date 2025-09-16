@@ -35,14 +35,9 @@ const subscribersChartConfig = {
 export function AdminCharts() {
   const { period } = useDashboard();
 
-  // Mock data for now
-  const isLoading = false;
-  const analytics = {
-    usersOverTime: [],
-    subscribersOverTime: [],
-    cumulativeUsersOverTime: [],
-    cumulativeSubscribersOverTime: [],
-  };
+  const { data: analytics, isLoading } = trpc.getAnalytics.useQuery({
+    period,
+  });
 
   // Generate complete date range based on selected period
   const generateDateRange = (period: string) => {
@@ -110,7 +105,7 @@ export function AdminCharts() {
     });
 
     return Array.from(dataMap.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [analytics, period]);
 
@@ -140,7 +135,7 @@ export function AdminCharts() {
     });
 
     return Array.from(dataMap.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [analytics, period]);
 
@@ -171,7 +166,7 @@ export function AdminCharts() {
 
     // Convert to array and sort by date
     return Array.from(dataMap.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [analytics, period]);
 
@@ -202,7 +197,7 @@ export function AdminCharts() {
 
     // Convert to array and sort by date
     return Array.from(dataMap.values()).sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [analytics, period]);
 
@@ -212,33 +207,33 @@ export function AdminCharts() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card className="@container/card">
             <CardHeader>
-              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-              <div className="h-4 w-48 bg-muted rounded animate-pulse"></div>
+              <div className="bg-muted h-6 w-32 animate-pulse rounded"></div>
+              <div className="bg-muted h-4 w-48 animate-pulse rounded"></div>
             </CardHeader>
-            <div className="h-64 bg-muted rounded mx-4 mb-4 animate-pulse"></div>
+            <div className="bg-muted mx-4 mb-4 h-64 animate-pulse rounded"></div>
           </Card>
           <Card className="@container/card">
             <CardHeader>
-              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-              <div className="h-4 w-48 bg-muted rounded animate-pulse"></div>
+              <div className="bg-muted h-6 w-32 animate-pulse rounded"></div>
+              <div className="bg-muted h-4 w-48 animate-pulse rounded"></div>
             </CardHeader>
-            <div className="h-64 bg-muted rounded mx-4 mb-4 animate-pulse"></div>
+            <div className="bg-muted mx-4 mb-4 h-64 animate-pulse rounded"></div>
           </Card>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card className="@container/card">
             <CardHeader>
-              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-              <div className="h-4 w-48 bg-muted rounded animate-pulse"></div>
+              <div className="bg-muted h-6 w-32 animate-pulse rounded"></div>
+              <div className="bg-muted h-4 w-48 animate-pulse rounded"></div>
             </CardHeader>
-            <div className="h-64 bg-muted rounded mx-4 mb-4 animate-pulse"></div>
+            <div className="bg-muted mx-4 mb-4 h-64 animate-pulse rounded"></div>
           </Card>
           <Card className="@container/card">
             <CardHeader>
-              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-              <div className="h-4 w-48 bg-muted rounded animate-pulse"></div>
+              <div className="bg-muted h-6 w-32 animate-pulse rounded"></div>
+              <div className="bg-muted h-4 w-48 animate-pulse rounded"></div>
             </CardHeader>
-            <div className="h-64 bg-muted rounded mx-4 mb-4 animate-pulse"></div>
+            <div className="bg-muted mx-4 mb-4 h-64 animate-pulse rounded"></div>
           </Card>
         </div>
       </div>
@@ -246,7 +241,7 @@ export function AdminCharts() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex h-full flex-col gap-4">
       {/* First Row - Daily Charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Users Chart */}
@@ -359,7 +354,7 @@ export function AdminCharts() {
       </div>
 
       {/* Second Row - Cumulative Charts */}
-      <div className="flex-1 grid grid-cols-1 gap-4 lg:grid-cols-2 min-h-0">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Cumulative Users Chart */}
         <Card className="flex flex-col">
           <CardHeader>
@@ -371,8 +366,8 @@ export function AdminCharts() {
               <span className="@[540px]/card:hidden">Total users</span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 p-6 flex flex-col">
-            <ChartContainer config={usersChartConfig} className="flex-1 w-full">
+          <CardContent className="flex flex-1 flex-col p-6">
+            <ChartContainer config={usersChartConfig} className="w-full flex-1">
               <LineChart
                 accessibilityLayer
                 data={cumulativeUsersChartData}
@@ -435,10 +430,10 @@ export function AdminCharts() {
               <span className="@[540px]/card:hidden">Total subscribers</span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 p-6 flex flex-col">
+          <CardContent className="flex flex-1 flex-col p-6">
             <ChartContainer
               config={subscribersChartConfig}
-              className="flex-1 w-full"
+              className="w-full flex-1"
             >
               <LineChart
                 accessibilityLayer
