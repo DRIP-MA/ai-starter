@@ -100,99 +100,96 @@ export function OrganizationSettingsForm() {
 
   if (!activeOrganization) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Organization Settings</CardTitle>
-          <CardDescription>No active organization selected</CardDescription>
-        </CardHeader>
-      </Card>
+      <div>
+        <h1 className="text-2xl font-bold">Organization Settings</h1>
+        <p className="text-muted-foreground">No active organization selected</p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Organization Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Organization Details</CardTitle>
-          <CardDescription>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Organization Settings</h1>
+          <p className="text-muted-foreground">
             Update your organization's basic information
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleUpdateOrganization} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Organization Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Enter organization name"
-                  disabled={isUpdating}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="slug">Organization Slug</Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) =>
-                    setFormData({ ...formData, slug: e.target.value })
-                  }
-                  placeholder="organization-slug"
-                  disabled={isUpdating}
-                />
-              </div>
-            </div>
+          </p>
+        </div>
 
+        <form onSubmit={handleUpdateOrganization} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="logo">Logo URL</Label>
+              <Label htmlFor="name">Organization Name</Label>
               <Input
-                id="logo"
-                value={formData.logo}
+                id="name"
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, logo: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="https://example.com/logo.png"
+                placeholder="Enter organization name"
                 disabled={isUpdating}
               />
             </div>
-
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
+              <Label htmlFor="slug">Organization Slug</Label>
+              <Input
+                id="slug"
+                value={formData.slug}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, slug: e.target.value })
                 }
-                placeholder="Describe your organization..."
+                placeholder="organization-slug"
                 disabled={isUpdating}
-                rows={3}
               />
             </div>
+          </div>
 
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          <div className="grid gap-2">
+            <Label htmlFor="logo">Logo URL</Label>
+            <Input
+              id="logo"
+              value={formData.logo}
+              onChange={(e) =>
+                setFormData({ ...formData, logo: e.target.value })
+              }
+              placeholder="https://example.com/logo.png"
+              disabled={isUpdating}
+            />
+          </div>
 
-            {success && (
-              <Alert>
-                <AlertDescription>{success}</AlertDescription>
-              </Alert>
-            )}
+          <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Describe your organization..."
+              disabled={isUpdating}
+              rows={3}
+            />
+          </div>
 
-            <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? "Updating..." : "Update Organization"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert>
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button type="submit" disabled={isUpdating}>
+            {isUpdating ? "Updating..." : "Update Organization"}
+          </Button>
+        </form>
+      </div>
 
       {/* Danger Zone */}
       <Card className="border-destructive/20">

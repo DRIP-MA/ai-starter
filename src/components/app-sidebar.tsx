@@ -19,6 +19,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
@@ -31,65 +32,6 @@ const data = {
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      title: "Organization",
-      url: "/organization/members",
-      icon: Building2,
-      items: [
-        {
-          title: "Members",
-          url: "/organization/members",
-        },
-        {
-          title: "Settings",
-          url: "/organization/settings",
-        },
-      ],
-    },
-    {
-      title: "Projects",
-      url: "/projects",
-      icon: FolderOpen,
-      items: [
-        {
-          title: "All Projects",
-          url: "/projects",
-        },
-        {
-          title: "Create New",
-          url: "/projects/new",
-        },
-        {
-          title: "Templates",
-          url: "/projects/templates",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-      items: [
-        {
-          title: "Profile",
-          url: "/settings/profile",
-        },
-        {
-          title: "Billing",
-          url: "/settings/billing",
-        },
-        {
-          title: "Subscription",
-          url: "/settings/subscription",
-        },
-        {
-          title: "Notifications",
-          url: "/settings/notifications",
-        },
-      ],
-    },
   ],
 };
 
@@ -100,8 +42,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavMain items={data.navSecondary} />
+        <SidebarGroup>
+          <NavMain items={data.navMain} />
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

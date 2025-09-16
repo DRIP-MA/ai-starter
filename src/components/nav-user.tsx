@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut, Settings, Users } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
@@ -97,31 +90,16 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onClick={() => router.push("/settings/subscription")}
+                onClick={() => router.push("/organization/members")}
               >
-                <Sparkles />
-                Upgrade Plan
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                onClick={() => router.push("/settings/profile")}
-              >
-                <BadgeCheck />
-                Account
+                <Users />
+                Team
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => router.push("/settings/billing")}
+                onClick={() => router.push("/organization/settings")}
               >
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => router.push("/settings/notifications")}
-              >
-                <Bell />
-                Notifications
+                <Settings />
+                Settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
