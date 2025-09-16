@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { NoOrganization } from "@/components/organization/no-organization";

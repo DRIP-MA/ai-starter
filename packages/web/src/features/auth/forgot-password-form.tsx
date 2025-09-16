@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,

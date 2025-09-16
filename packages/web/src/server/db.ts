@@ -1,2 +1,2 @@
 // Re-export the database instance from the new location
-export { db } from "@/lib/db";
+export { db } from "@acme/shared/server";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,

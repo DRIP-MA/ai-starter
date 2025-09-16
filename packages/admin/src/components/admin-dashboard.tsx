@@ -1,0 +1,315 @@
+"use client";
+
+import { trpc } from "@/trpc/react";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AdminCharts } from "./admin-charts";
+import { useDashboard } from "@/contexts/dashboard-context";
+
+export function AdminDashboard() {
+  const { period } = useDashboard();
+  // Mock data for now - replace with actual TRPC calls when admin API is ready
+  const analyticsLoading = false;
+  const analytics = {
+    summary: {
+      totalUsers: 1250,
+      totalOrganizations: 45,
+      totalSubscribers: 320,
+    },
+    usersOverTime: [],
+    subscribersOverTime: [],
+    cumulativeUsersOverTime: [],
+    cumulativeSubscribersOverTime: [],
+  };
+
+  const previousAnalytics = {
+    summary: {
+      totalUsers: 1100,
+      totalOrganizations: 38,
+      totalSubscribers: 280,
+    },
+  };
+
+  // Calculate growth rates
+  const calculateGrowthRate = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  if (analyticsLoading) {
+    return (
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="@container/card animate-pulse">
+                <CardHeader>
+                  <div className="h-4 w-24 bg-muted rounded"></div>
+                  <div className="h-8 w-16 bg-muted rounded mt-2"></div>
+                  <div className="h-6 w-12 bg-muted rounded mt-2 ml-auto"></div>
+                </CardHeader>
+                <CardFooter>
+                  <div className="h-3 w-32 bg-muted rounded"></div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+          <div className="px-4 lg:px-6">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <Card className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 w-32 bg-muted rounded"></div>
+                    <div className="h-4 w-48 bg-muted rounded"></div>
+                  </CardHeader>
+                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                </Card>
+                <Card className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 w-32 bg-muted rounded"></div>
+                    <div className="h-4 w-48 bg-muted rounded"></div>
+                  </CardHeader>
+                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                </Card>
+              </div>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <Card className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 w-32 bg-muted rounded"></div>
+                    <div className="h-4 w-48 bg-muted rounded"></div>
+                  </CardHeader>
+                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                </Card>
+                <Card className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 w-32 bg-muted rounded"></div>
+                    <div className="h-4 w-48 bg-muted rounded"></div>
+                  </CardHeader>
+                  <div className="h-64 bg-muted rounded mx-4 mb-4"></div>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const summary = analytics?.summary || {
+    totalUsers: 0,
+    totalOrganizations: 0,
+    totalSubscribers: 0,
+  };
+
+  const previousSummary = previousAnalytics?.summary || {
+    totalUsers: 0,
+    totalOrganizations: 0,
+    totalSubscribers: 0,
+  };
+
+  const userGrowth = calculateGrowthRate(
+    summary.totalUsers,
+    previousSummary.totalUsers
+  );
+  const organizationGrowth = calculateGrowthRate(
+    summary.totalOrganizations,
+    previousSummary.totalOrganizations
+  );
+  const subscriberGrowth = calculateGrowthRate(
+    summary.totalSubscribers,
+    previousSummary.totalSubscribers
+  );
+
+  // Format period labels
+  const getPeriodLabel = (period: string) => {
+    switch (period) {
+      case "today":
+        return "today";
+      case "7d":
+        return "last 7 days";
+      case "30d":
+        return "last 30 days";
+      case "90d":
+        return "last 90 days";
+      case "1y":
+        return "last year";
+      case "all":
+        return "all time";
+      default:
+        return period;
+    }
+  };
+
+  const getPreviousPeriodLabel = (currentPeriod: string) => {
+    switch (currentPeriod) {
+      case "today":
+        return "last 7 days";
+      case "7d":
+        return "last 30 days";
+      case "30d":
+        return "last 90 days";
+      case "90d":
+        return "last year";
+      case "1y":
+        return "all time";
+      case "all":
+        return "all time";
+      default:
+        return "previous period";
+    }
+  };
+
+  return (
+    <div className="flex flex-1 flex-col gap-2">
+      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+        {/* Summary Cards */}
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>
+                Users ({getPeriodLabel(period)})
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {summary.totalUsers.toLocaleString()}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  {userGrowth >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4" />
+                  )}
+                  {userGrowth >= 0 ? "+" : ""}
+                  {userGrowth.toFixed(1)}%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="text-sm text-muted-foreground">
+              {previousSummary.totalUsers.toLocaleString()} in{" "}
+              {getPreviousPeriodLabel(period)}
+            </CardFooter>
+          </Card>
+
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>
+                Organizations ({getPeriodLabel(period)})
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {summary.totalOrganizations.toLocaleString()}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  {organizationGrowth >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4" />
+                  )}
+                  {organizationGrowth >= 0 ? "+" : ""}
+                  {organizationGrowth.toFixed(1)}%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="text-sm text-muted-foreground">
+              {previousSummary.totalOrganizations.toLocaleString()} in{" "}
+              {getPreviousPeriodLabel(period)}
+            </CardFooter>
+          </Card>
+
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>
+                Subscribers ({getPeriodLabel(period)})
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {summary.totalSubscribers.toLocaleString()}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  {subscriberGrowth >= 0 ? (
+                    <TrendingUp className="h-4 w-4" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4" />
+                  )}
+                  {subscriberGrowth >= 0 ? "+" : ""}
+                  {subscriberGrowth.toFixed(1)}%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="text-sm text-muted-foreground">
+              {previousSummary.totalSubscribers.toLocaleString()} in{" "}
+              {getPreviousPeriodLabel(period)}
+            </CardFooter>
+          </Card>
+
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription>
+                Conversion Rate ({getPeriodLabel(period)})
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {summary.totalUsers > 0
+                  ? (
+                      (summary.totalSubscribers / summary.totalUsers) *
+                      100
+                    ).toFixed(1)
+                  : 0}
+                %
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  <TrendingUp className="h-4 w-4" />
+                  {(previousSummary.totalUsers > 0
+                    ? (previousSummary.totalSubscribers /
+                        previousSummary.totalUsers) *
+                      100
+                    : 0) -
+                    (summary.totalUsers > 0
+                      ? (summary.totalSubscribers / summary.totalUsers) * 100
+                      : 0) >=
+                  0
+                    ? "+"
+                    : ""}
+                  {(
+                    (summary.totalUsers > 0
+                      ? (summary.totalSubscribers / summary.totalUsers) * 100
+                      : 0) -
+                    (previousSummary.totalUsers > 0
+                      ? (previousSummary.totalSubscribers /
+                          previousSummary.totalUsers) *
+                        100
+                      : 0)
+                  ).toFixed(1)}
+                  %
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="text-sm text-muted-foreground">
+              {previousSummary.totalUsers > 0
+                ? (
+                    (previousSummary.totalSubscribers /
+                      previousSummary.totalUsers) *
+                    100
+                  ).toFixed(1)
+                : 0}
+              % in {getPreviousPeriodLabel(period)}
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <div className="px-4 lg:px-6">
+          <AdminCharts />
+        </div>
+      </div>
+    </div>
+  );
+}

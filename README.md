@@ -6,7 +6,9 @@ This is a monorepo setup using [pnpm workspaces](https://pnpm.io/workspaces) for
 
 ```
 ├── packages/
-│   └── web/          # @acme/web - Next.js application
+│   ├── web/          # @acme/web - Next.js application
+│   ├── admin/        # @acme/admin - Admin dashboard
+│   └── shared/       # @acme/shared - Shared auth, database, and utilities
 ├── pnpm-workspace.yaml
 ├── package.json      # @acme/root - Root package.json with workspace scripts
 └── README.md
@@ -49,15 +51,24 @@ This is a monorepo setup using [pnpm workspaces](https://pnpm.io/workspaces) for
 - `pnpm format:write` - Format code
 - `pnpm clean` - Clean all packages and root node_modules
 
-### Web Package Specific Scripts
+### Package Specific Scripts
 
-- `pnpm web:dev` - Start the @acme/web app in development mode
-- `pnpm web:build` - Build the @acme/web app
-- `pnpm web:start` - Start the @acme/web app in production mode
+#### Web App (@acme/web)
+
+- `pnpm web:dev` - Start the web app in development mode (port 3000)
+- `pnpm web:build` - Build the web app
+- `pnpm web:start` - Start the web app in production mode
 - `pnpm web:db:generate` - Generate database schema
 - `pnpm web:db:migrate` - Run database migrations
 - `pnpm web:db:push` - Push database changes
 - `pnpm web:db:studio` - Open database studio
+
+#### Admin Dashboard (@acme/admin)
+
+- `pnpm admin:dev` - Start the admin dashboard in development mode (port 3002)
+- `pnpm admin:build` - Build the admin dashboard
+- `pnpm admin:start` - Start the admin dashboard in production mode
+- `pnpm admin:typecheck` - Run TypeScript checks on admin package
 
 ## Adding New Packages
 

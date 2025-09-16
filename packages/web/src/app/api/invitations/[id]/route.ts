@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { invitation, organization, user } from "@/lib/db/schema";
+import { db, invitation, organization, user } from "@acme/shared/server";
 import { eq, and, gt } from "drizzle-orm";
 
 export async function GET(

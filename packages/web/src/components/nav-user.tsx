@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsUpDown, LogOut, Settings, Users } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

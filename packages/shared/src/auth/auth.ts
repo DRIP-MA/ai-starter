@@ -3,9 +3,9 @@ import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
-import { db } from "@/lib/db";
-import { env } from "@/env";
-import { emailService } from "@/lib/email";
+import { db } from "../db";
+import { env } from "../env";
+import { emailService } from "../lib/email";
 
 const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-08-27.basil",

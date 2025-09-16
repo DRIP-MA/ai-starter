@@ -1,9 +1,5 @@
 import { Resend } from "resend";
-import { env } from "@/env";
-import { WelcomeEmail } from "@/components/emails/welcome-email";
-import { OrganizationInvitationEmail } from "@/components/emails/organization-invitation-email";
-import { PasswordResetEmail } from "@/components/emails/password-reset-email";
-import { EmailVerificationEmail } from "@/components/emails/email-verification-email";
+import { env } from "../env";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -33,8 +29,8 @@ export interface SendEmailVerificationParams {
   verificationLink: string;
 }
 
-const APP_NAME = env.NEXT_PUBLIC_APP_NAME;
-const FROM_EMAIL = "send@email.allignia.io";
+const APP_NAME = "ACME";
+const FROM_EMAIL = "no-reply@acme.com";
 
 export const emailService = {
   async sendWelcomeEmail({ to, firstName }: SendWelcomeEmailParams) {
@@ -43,7 +39,11 @@ export const emailService = {
         from: FROM_EMAIL,
         to: [to],
         subject: `Welcome to ${APP_NAME}!`,
-        react: WelcomeEmail({ firstName, appName: APP_NAME }),
+        html: `
+          <h1>Welcome to ${APP_NAME}, ${firstName}!</h1>
+          <p>Thank you for joining us. We're excited to have you on board.</p>
+          <p>Best regards,<br>The ${APP_NAME} Team</p>
+        `,
       });
 
       if (error) {
@@ -71,14 +71,14 @@ export const emailService = {
         from: FROM_EMAIL,
         to: [to],
         subject: `You've been invited to join ${organizationName}`,
-        react: OrganizationInvitationEmail({
-          invitedByName,
-          invitedByEmail,
-          organizationName,
-          role,
-          inviteLink,
-          appName: APP_NAME,
-        }),
+        html: `
+          <h1>You've been invited to join ${organizationName}</h1>
+          <p>Hi there!</p>
+          <p>${invitedByName} (${invitedByEmail}) has invited you to join <strong>${organizationName}</strong> as a ${role}.</p>
+          <p><a href="${inviteLink}" style="background: #007cba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Accept Invitation</a></p>
+          <p>If you have any questions, please contact ${invitedByEmail}.</p>
+          <p>Best regards,<br>The ${APP_NAME} Team</p>
+        `,
       });
 
       if (error) {
@@ -103,7 +103,14 @@ export const emailService = {
         from: FROM_EMAIL,
         to: [to],
         subject: `Reset your ${APP_NAME} password`,
-        react: PasswordResetEmail({ firstName, resetLink, appName: APP_NAME }),
+        html: `
+          <h1>Reset your ${APP_NAME} password</h1>
+          <p>Hi ${firstName},</p>
+          <p>We received a request to reset your password. Click the link below to create a new password:</p>
+          <p><a href="${resetLink}" style="background: #007cba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Reset Password</a></p>
+          <p>If you didn't request this, please ignore this email.</p>
+          <p>Best regards,<br>The ${APP_NAME} Team</p>
+        `,
       });
 
       if (error) {
@@ -128,11 +135,14 @@ export const emailService = {
         from: FROM_EMAIL,
         to: [to],
         subject: `Verify your ${APP_NAME} email address`,
-        react: EmailVerificationEmail({
-          firstName,
-          verificationLink,
-          appName: APP_NAME,
-        }),
+        html: `
+          <h1>Verify your ${APP_NAME} email address</h1>
+          <p>Hi ${firstName},</p>
+          <p>Please verify your email address by clicking the link below:</p>
+          <p><a href="${verificationLink}" style="background: #007cba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Verify Email</a></p>
+          <p>If you didn't create an account, please ignore this email.</p>
+          <p>Best regards,<br>The ${APP_NAME} Team</p>
+        `,
       });
 
       if (error) {

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 
 interface UnauthenticatedProps {
   children: React.ReactNode;

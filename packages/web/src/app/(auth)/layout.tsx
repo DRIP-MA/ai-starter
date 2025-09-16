@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@acme/shared/server";
 import { GalleryVerticalEnd } from "lucide-react";
 
 export default function AuthLayout({

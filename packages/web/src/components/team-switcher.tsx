@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronsUpDown, Plus, Building2 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@acme/shared/client";
 
 import {
   DropdownMenu,
