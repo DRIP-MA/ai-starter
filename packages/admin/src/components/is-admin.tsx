@@ -11,18 +11,22 @@ export default async function IsAdmin({
     headers: await headers(),
   });
 
+  // Get the main app URL from environment or default to localhost:3000
+  const mainAppUrl =
+    process.env.NEXT_PUBLIC_MAIN_APP_URL || "http://localhost:3000";
+
   if (!session?.user) {
-    redirect("/login");
+    // Redirect to main app login page
+    redirect(`${mainAppUrl}/login`);
   }
 
   // For now, we'll check if user has admin role or is part of an admin organization
   // This should be replaced with your actual admin logic
-  const isUserAdmin =
-    session.user.email?.includes("admin") ||
-    session.user.email?.endsWith("@acme.com");
+  const isUserAdmin = session.user.role === "admin";
 
   if (!isUserAdmin) {
-    redirect("/");
+    // Redirect to main app dashboard for non-admin users
+    redirect(`${mainAppUrl}/`);
   }
 
   return <>{children}</>;
