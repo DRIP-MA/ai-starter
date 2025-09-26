@@ -10,19 +10,13 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Copy all app package.json files for dependency resolution
 COPY apps/admin/package.json ./apps/admin/package.json
-COPY apps/backend/package.json ./apps/backend/package.json
-COPY packages/auth/package.json ./packages/auth/package.json
+COPY apps/shared/package.json ./apps/shared/package.json
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY apps/ ./apps/
-COPY packages/ ./packages/
-
-# Build the backend first (needed for admin imports)
-WORKDIR /app/apps/backend
-RUN pnpm run build
 
 # Build the admin frontend
 WORKDIR /app/apps/admin

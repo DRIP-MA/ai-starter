@@ -5,7 +5,7 @@ This is a monorepo setup using [pnpm workspaces](https://pnpm.io/workspaces) for
 ## Structure
 
 ```
-├── packages/
+├── apps/
 │   ├── web/          # @acme/web - Next.js application
 │   ├── admin/        # @acme/admin - Admin dashboard
 │   └── shared/       # @acme/shared - Shared auth, database, and utilities
@@ -74,7 +74,7 @@ This is a monorepo setup using [pnpm workspaces](https://pnpm.io/workspaces) for
 
 To add a new package to the workspace:
 
-1. Create a new directory under `packages/`
+1. Create a new directory under `apps/`
 2. Add a `package.json` file with a unique name under the `@acme/*` namespace
 3. The package will automatically be included in the workspace
 
