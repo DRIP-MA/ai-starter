@@ -3,12 +3,13 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { db, subscription, plan } from "@acme/shared/server";
 import { eq } from "drizzle-orm";
+import { env } from "@/env";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-08-27.basil",
 });
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
   const body = await req.text();

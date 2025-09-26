@@ -9,6 +9,8 @@ import Stripe from "stripe";
 import { db } from "../db";
 import { emailService } from "../lib/email";
 
+// Note: This file is in the shared package, so we need to use process.env directly
+// as it doesn't have access to the web app's env schema
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-08-27.basil",
 });

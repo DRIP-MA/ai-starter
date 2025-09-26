@@ -10,8 +10,9 @@ import {
 } from "@acme/shared/server";
 import { eq, and, desc } from "drizzle-orm";
 import Stripe from "stripe";
+import { env } from "@/env";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-08-27.basil",
 });
 
@@ -183,9 +184,9 @@ export const subscriptionRouter = createTRPCRouter({
         ],
         mode: "subscription",
         success_url:
-          successUrl || `${process.env.BETTER_AUTH_URL}/dashboard?success=true`,
+          successUrl || `${env.BETTER_AUTH_URL}/dashboard?success=true`,
         cancel_url:
-          cancelUrl || `${process.env.BETTER_AUTH_URL}/dashboard?canceled=true`,
+          cancelUrl || `${env.BETTER_AUTH_URL}/dashboard?canceled=true`,
         subscription_data: {
           metadata: {
             userId,
@@ -256,7 +257,7 @@ export const subscriptionRouter = createTRPCRouter({
       // Create customer portal session
       const session = await stripe.billingPortal.sessions.create({
         customer: stripeCustomerId,
-        return_url: returnUrl || `${process.env.BETTER_AUTH_URL}/dashboard`,
+        return_url: returnUrl || `${env.BETTER_AUTH_URL}/dashboard`,
       });
 
       if (!session.url) {

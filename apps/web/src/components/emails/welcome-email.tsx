@@ -1,4 +1,5 @@
 import * as React from "react";
+import { env } from "@/env";
 
 interface WelcomeEmailProps {
   firstName: string;
@@ -44,7 +45,7 @@ export function WelcomeEmail({ firstName, appName }: WelcomeEmailProps) {
 
         <div style={{ textAlign: "center", margin: "40px 0" }}>
           <a
-            href={`${process.env.BETTER_AUTH_URL}/dashboard`}
+            href={`${env.BETTER_AUTH_URL}/dashboard`}
             style={{
               backgroundColor: "#007bff",
               color: "#fff",
